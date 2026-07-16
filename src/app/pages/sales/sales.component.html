@@ -1,0 +1,29 @@
+<section class="page">
+  <h1 class="page-title">فروخت</h1>
+  <div class="summary-grid sales-summary">
+    <article class="panel summary-card"><div><strong>Rs{{ total().toLocaleString() }}</strong><span>آج کی فروخت</span></div><span class="summary-icon"><lucide-icon [img]="icons.TrendingUp" [size]="21" /></span></article>
+    <article class="panel summary-card"><div><strong>Rs12.3L</strong><span>ادھار بقایا</span></div><span class="summary-icon red"><lucide-icon [img]="icons.WalletCards" [size]="21" /></span></article>
+    <article class="panel summary-card"><div><strong>Rs{{ profit().toLocaleString() }}</strong><span>اس ماہ منافع</span></div><span class="summary-icon purple"><lucide-icon [img]="icons.TrendingUp" [size]="21" /></span></article>
+    <article class="panel summary-card"><div><strong>Rs24K</strong><span>واپسی</span></div><span class="summary-icon orange"><lucide-icon [img]="icons.RotateCcw" [size]="21" /></span></article>
+  </div>
+  <article class="panel data-panel">
+    <div class="panel-heading sales-heading"><h2>فروخت کی فہرست</h2><div class="actions"><button class="btn btn-primary"><lucide-icon [img]="icons.Plus" [size]="17" /> نئی فروخت</button><button class="btn">
+      <lucide-icon [img]="icons.Download" [size]="16" /> ایکسپورٹ</button>
+      <button class="btn btn-success"><lucide-icon [img]="icons.MessageCircle" [size]="16" /> واٹس ایپ</button>
+    </div></div>
+    <div class="filters"><input class="search" [ngModel]="search()" (ngModelChange)="search.set($event)" placeholder="انوائس یا صارف تلاش کریں..."/><button class="period active">آج</button><button class="period">اس ہفتے</button><button class="period">اس ماہ</button><button class="period">اس سال</button></div>
+    <div class="table-scroll"><table><thead><tr><th>انوائس نمبر</th><th>صارف</th><th>تاریخ</th><th>رقم</th><th>قسم</th>
+      <th>حالت</th><th>منافع</th><th>اقدامات</th></tr></thead><tbody>
+      @for (sale of filtered(); track sale.invoice) 
+      { <tr><td class="money">{{ sale.invoice }}</td>
+        <td><strong>{{ sale.customer }}</strong></td><td>{{ sale.time }}</td>
+        <td class="money">Rs{{ sale.amount.toLocaleString() }}</td><td>{{ sale.kind }}</td>
+        <td><span class="badge" [class.badge-success]="sale.payment === 'فعال'" [class.badge-warning]="sale.payment === 'بقایا'">{{ sale.payment }}</span>
+        </td><td class="profit">Rs{{ sale.profit.toLocaleString() }}</td><td><div class="icon-actions">
+          <button class="icon-btn" title="دیکھیں"><lucide-icon [img]="icons.Eye" [size]="14" /></button>
+          <button class="icon-btn" title="پرنٹ"><lucide-icon [img]="icons.Printer" [size]="14" /></button>
+          <button class="icon-btn chat" title="واٹس ایپ"><lucide-icon [img]="icons.MessageCircle" [size]="14" /></button>
+        </div></td></tr> }
+    </tbody></table></div>
+  </article>
+</section>

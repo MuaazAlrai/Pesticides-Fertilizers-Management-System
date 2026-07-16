@@ -1,0 +1,15 @@
+.page-title{margin-bottom:18px}.sales-summary{margin-right:auto;max-width:850px}
+.summary-card{min-height:78px;padding:14px 16px}
+.summary-card strong{font-size:20px}
+.summary-icon{width:42px;height:42px}.summary-icon.red{color:var(--danger);
+background:#ffe9e9}.summary-icon.purple{color:#7b4ce7;background:#f0eaff}
+.summary-icon.orange{color:var(--orange);background:#fff0e7}.sales-heading{align-items:flex-start}
+.actions,.filters{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.actions .btn{display:inline-flex;align-items:center;gap:6px}.filters{padding:0 20px 14px}
+.filters .search{margin-left:auto}.period{min-height:35px;padding:4px 14px;border:1px solid #ceddd4;border-radius:20px;background:white;color:var(--muted)}
+.period.active{background:var(--green-900);border-color:var(--green-900);color:white}
+.profit{color:#08a74e;font-family:Roboto,sans-serif;font-weight:700}
+.chat{color:#0db65a}@media(max-width:650px){.sales-heading{display:block}
+.actions{margin-top:10px}.actions .btn{flex:1;justify-content:center}
+.filters .search{flex-basis:100%;margin-left:0}.period{flex:1;padding-inline:7px}
+.sales-summary{grid-template-columns:repeat(2,1fr)}}
