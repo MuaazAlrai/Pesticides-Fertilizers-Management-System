@@ -1,0 +1,67 @@
+<section class="page">
+  <div class="page-head khata-head">
+    <div>
+      <h1 class="page-title">Party Khata</h1>
+      <p>Har customer, supplier aur company ka sale/purchase khata.</p>
+    </div>
+    <label class="party-select">Party
+      <select [ngModel]="selectedParty().key" (ngModelChange)="updateParty($event)">
+        @for(party of parties(); track party.key) {
+          <option [value]="party.key">{{ party.name }} - {{ partyTypeLabel(party.type) }}</option>
+        }
+      </select>
+    </label>
+  </div>
+
+  @if(selectedParty()) {
+    <div class="selected-party panel">
+      <span class="party-icon">
+        <lucide-icon [img]="selectedParty().type === 'supplier' ? icons.Building2 : icons.Users" [size]="22" />
+      </span>
+      <div>
+        <strong>{{ selectedParty().name }}</strong>
+        <small>{{ partyTypeLabel(selectedParty()!.type) }}</small>
+      </div>
+    </div>
+  }
+
+  <div class="summary-grid khata-summary">
+    <article class="panel summary-card"><div><strong>Rs{{ total().toLocaleString() }}</strong><span>Total business</span></div><span class="summary-icon"><lucide-icon [img]="icons.ReceiptText" [size]="21" /></span></article>
+    <article class="panel summary-card"><div><strong>Rs{{ cash().toLocaleString() }}</strong><span>Naqad diya/liya</span></div><span class="summary-icon green"><lucide-icon [img]="icons.WalletCards" [size]="21" /></span></article>
+    <article class="panel summary-card"><div><strong>Rs{{ balance().toLocaleString() }}</strong><span>Baqaya</span></div><span class="summary-icon red"><lucide-icon [img]="icons.WalletCards" [size]="21" /></span></article>
+    <article class="panel summary-card"><div><strong>Rs{{ advance().toLocaleString() }}</strong><span>Advance</span></div><span class="summary-icon blue"><lucide-icon [img]="icons.WalletCards" [size]="21" /></span></article>
+  </div>
+
+  <article class="panel data-panel">
+    <div class="panel-heading"><h2>Khata detail</h2></div>
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>Date</th><th>Time</th><th>Type</th><th>Invoice</th><th>Item</th><th>Total</th><th>Naqad</th><th>Baqaya</th><th>Advance</th><th>Actions</th></tr></thead>
+        <tbody>
+          @for(row of khataRows(); track row.type + row.invoice) {
+            <tr>
+              <td>{{ row.date }}</td>
+              <td>{{ row.time }}</td>
+              <td><span class="badge" [class.sale]="row.type === 'Sale'" [class.purchase]="row.type === 'Purchase'">{{ row.type }}</span></td>
+              <td class="money">{{ row.invoice }}</td>
+              <td><strong>{{ row.item }}</strong></td>
+              <td class="money">Rs{{ row.total.toLocaleString() }}</td>
+              <td class="money cash">Rs{{ row.cash.toLocaleString() }}</td>
+              <td class="money due">Rs{{ row.balance.toLocaleString() }}</td>
+              <td class="money advance">Rs{{ row.advance.toLocaleString() }}</td>
+              <td>
+                <div class="icon-actions">
+                  <a class="icon-btn" [routerLink]="row.route" title="Open"><lucide-icon [img]="icons.Eye" [size]="14" /></a>
+                  <a class="icon-btn edit" [routerLink]="row.route" title="Edit"><lucide-icon [img]="icons.Pencil" [size]="14" /></a>
+                  <button class="icon-btn danger" title="Delete" (click)="deleteRow(row)"><lucide-icon [img]="icons.Trash2" [size]="14" /></button>
+                </div>
+              </td>
+            </tr>
+          } @empty {
+            <tr><td colspan="10" class="empty">Is party ka khata abhi empty hai.</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </article>
+</section>

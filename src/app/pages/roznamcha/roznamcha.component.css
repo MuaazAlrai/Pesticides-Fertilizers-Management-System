@@ -1,0 +1,33 @@
+.roz-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
+.roz-head p { margin: 4px 0 0; color: var(--muted); font-size: 13px; }
+.date-tools { display: flex; align-items: end; gap: 10px; flex-wrap: wrap; }
+.date-tools label { display: grid; gap: 6px; color: var(--muted); font-size: 12px; }
+.date-tools input { height: 40px; border: 1px solid #ceddd4; border-radius: 8px; padding: 7px 10px; color: var(--ink); }
+.period-tabs { display: flex; align-items: center; gap: 6px; padding: 4px; border: 1px solid #d7e3dc; border-radius: 9px; background: white; }
+.period { min-height: 32px; border: 0; border-radius: 7px; padding: 6px 12px; background: transparent; color: var(--muted); font-weight: 800; cursor: pointer; }
+.period.active { color: var(--green-900); background: var(--green-100); }
+.btn { display: inline-flex; align-items: center; gap: 7px; }
+.roz-summary { grid-template-columns: repeat(4, minmax(0, 1fr)); margin-bottom: 16px; }
+.summary-icon.green { color: #079447; background: #e4f8ec; }
+.summary-icon.red { color: var(--danger); background: #ffe8e8; }
+.summary-icon.purple { color: #7c3aed; background: #efe7ff; }
+.summary-icon.orange { color: var(--orange); background: #fff0e7; }
+.summary-icon.blue { color: #078bad; background: #e2f5fa; }
+.data-panel { margin-bottom: 16px; }
+.sale { background: #e4f8ec; color: #067a3b; }
+.purchase { background: #fff0e7; color: #a34b03; }
+.cash, .profit, .advance { color: #079447; font-weight: 800; }
+.due { color: var(--danger); font-weight: 800; }
+.empty { text-align: center; color: var(--muted); padding: 22px; }
+
+@media (max-width: 1050px) {
+  .roz-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 650px) {
+  .roz-head { display: block; }
+  .date-tools { margin-top: 12px; }
+  .period-tabs { width: 100%; overflow: auto; }
+  .period { flex: 1 0 auto; }
+  .roz-summary { grid-template-columns: 1fr; }
+}

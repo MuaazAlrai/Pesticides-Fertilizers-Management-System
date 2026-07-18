@@ -1,0 +1,88 @@
+<section class="page">
+  <h1 class="page-title">Purchase</h1>
+  <div class="summary-grid sales-summary">
+    <article class="panel summary-card"><div><strong>Rs{{ total().toLocaleString() }}</strong><span>Total purchase</span></div><span class="summary-icon"><lucide-icon [img]="icons.TrendingUp" [size]="21" /></span></article>
+    <article class="panel summary-card"><div><strong>Rs{{ due().toLocaleString() }}</strong><span>Balance</span></div><span class="summary-icon red"><lucide-icon [img]="icons.WalletCards" [size]="21" /></span></article>
+    <article class="panel summary-card"><div><strong>{{ filtered().length }}</strong><span>Bills</span></div><span class="summary-icon orange"><lucide-icon [img]="icons.RotateCcw" [size]="21" /></span></article>
+  </div>
+
+  @if(message()) { <p class="message">{{ message() }}</p> }
+
+  <article class="panel sale-entry">
+    <div class="panel-heading sales-heading classic-toolbar">
+      <h2>{{ editingInvoice() ? 'Edit Purchase' : 'Purchase Form' }}</h2>
+      <div class="actions">
+        <button class="btn btn-primary" (click)="startNewPurchase()"><lucide-icon [img]="icons.Plus" [size]="17" /> New Purchase</button>
+        <button class="btn" (click)="formVisible.set(!formVisible())">{{ formVisible() ? 'Hide Form' : 'Show Form' }}</button>
+      </div>
+    </div>
+
+    @if(formVisible()) {
+      <div class="sale-form classic-sale-form">
+        <h2 class="classic-title">Purchase - Malik Ashraf Traders</h2>
+        <div class="classic-info">
+          <div class="classic-box">
+            <label><span>Bill #</span><input readonly [value]="editingInvoice() || 'New'" /></label>
+            <label><span>Date</span><input type="date" [ngModel]="form().date" (ngModelChange)="updateForm('date', $event)" /></label>
+            <label class="wide"><span>Supplier Name</span><input [ngModel]="form().supplier" (ngModelChange)="updateForm('supplier', $event)" placeholder="Supplier name" /></label>
+            <label class="wide"><span>Address / Note</span><input placeholder="Optional" /></label>
+          </div>
+          <div class="classic-box">
+            <label><span>Pay Type</span><select [ngModel]="form().payType" (ngModelChange)="updateForm('payType', $event)"><option value="cash">Cash</option><option value="credit">Credit</option><option value="partial">Partial</option></select></label>
+            <label><span>Supplier Account</span><select [ngModel]="form().supplierId" (ngModelChange)="updateForm('supplierId', $event)"><option [value]="0">Select supplier</option>@for(customer of store.customers(); track customer.id) { <option [value]="customer.id">{{ customer.name }}</option> }</select></label>
+            <label><span>Balance</span><input readonly [value]="balance().toLocaleString()" /></label>
+            <label><span>Purchase Man</span><input readonly value="Malik Ashraf" /></label>
+          </div>
+        </div>
+
+        <div class="table-scroll line-editor">
+          <table>
+            <thead><tr><th>Sr#</th><th>Product Name</th><th>Add To</th><th>Current Stock</th><th>Qty</th><th>Rs</th><th>Total</th><th>Action</th></tr></thead>
+            <tbody>
+              @for(line of lines(); track $index; let i = $index) {
+                <tr>
+                  <td>{{ i + 1 }}</td>
+                  <td><select [ngModel]="line.itemId" (ngModelChange)="updateLine(i, 'itemId', $event)">@for(item of store.stock(); track item.id) { <option [value]="item.id">{{ item.name }}</option> }</select></td>
+                  <td><select [ngModel]="line.source" (ngModelChange)="updateLine(i, 'source', $event)"><option value="warehouse">Godown</option><option value="shop">Dukan</option></select></td>
+                  <td class="stock-cell">{{ stockLabel(line) }}</td>
+                  <td><input type="number" min="1" [ngModel]="line.quantity" (ngModelChange)="updateLine(i, 'quantity', $event)" /></td>
+                  <td><input type="number" min="0" [ngModel]="line.rate" (ngModelChange)="updateLine(i, 'rate', $event)" /></td>
+                  <td class="money">Rs{{ lineTotal(line).toLocaleString() }}</td>
+                  <td><button class="icon-btn danger" title="Remove" (click)="removeLine(i)"><lucide-icon [img]="icons.X" [size]="14" /></button></td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <div class="sale-bottom">
+          <div class="classic-actions"><button class="btn" (click)="addLine()"><lucide-icon [img]="icons.Plus" [size]="16" /> Add Product</button><button class="btn" (click)="startNewPurchase()">Cancel</button></div>
+          <div class="bill-box">
+            <label>Total Bill <input readonly [value]="billTotal().toLocaleString()" /></label>
+            <label>Paid Cash <input type="number" min="0" [ngModel]="form().paidCash" (ngModelChange)="updateForm('paidCash', $event)" /></label>
+            <label>Balance <input readonly [value]="balance().toLocaleString()" /></label>
+            <button class="btn btn-primary" (click)="savePurchase()"><lucide-icon [img]="icons.Save" [size]="16" /> Save Purchase</button>
+          </div>
+        </div>
+      </div>
+    }
+  </article>
+
+  <article class="panel data-panel">
+    <div class="panel-heading sales-heading"><h2>Purchase List</h2><div class="actions"><button class="btn"><lucide-icon [img]="icons.Download" [size]="16" /> Export</button></div></div>
+    <div class="filters">
+      <input class="search" [ngModel]="search()" (ngModelChange)="search.set($event)" placeholder="Search bill, supplier, product..." />
+      <button class="period" [class.active]="period() === 'today'" (click)="setPeriod('today')">Today</button>
+      <button class="period" [class.active]="period() === 'month'" (click)="setPeriod('month')">This Month</button>
+      <button class="period" [class.active]="period() === 'year'" (click)="setPeriod('year')">This Year</button>
+      <button class="period" [class.active]="period() === 'all'" (click)="setPeriod('all')">All</button>
+      <label class="date-filter">From <input type="date" [ngModel]="fromDate()" (ngModelChange)="updateFromDate($event)" /></label>
+      <label class="date-filter">To <input type="date" [ngModel]="toDate()" (ngModelChange)="updateToDate($event)" /></label>
+    </div>
+    <div class="table-scroll"><table><thead><tr><th>Bill</th><th>Supplier</th><th>Date</th><th>Product</th><th>Qty</th><th>Add To</th><th>Total</th><th>Pay Type</th><th>Paid</th><th>Balance</th><th>Actions</th></tr></thead><tbody>
+      @for(purchase of filtered(); track purchase.invoice) {
+        <tr><td class="money">{{ purchase.invoice }}</td><td><strong>{{ purchase.supplier }}</strong></td><td>{{ purchaseDate(purchase) }}</td><td>{{ purchase.itemName || '-' }}</td><td class="money">{{ purchase.quantity || '-' }}</td><td><span class="badge source">{{ locationLabel(purchase.destination) }}</span></td><td class="money">Rs{{ purchase.amount.toLocaleString() }}</td><td>{{ purchase.payType ? payTypeLabel(purchase.payType) : paymentLabel(purchase.payment) }}</td><td class="money">Rs{{ (purchase.paidCash ?? 0).toLocaleString() }}</td><td class="money">Rs{{ (purchase.balance ?? 0).toLocaleString() }}</td><td><div class="icon-actions"><button class="icon-btn" (click)="viewPurchase(purchase)"><lucide-icon [img]="icons.Eye" [size]="14" /></button><button class="icon-btn edit" (click)="editPurchase(purchase)"><lucide-icon [img]="icons.Pencil" [size]="14" /></button><button class="icon-btn danger" (click)="deletePurchase(purchase)"><lucide-icon [img]="icons.Trash2" [size]="14" /></button></div></td></tr>
+      } @empty { <tr><td colspan="11" class="empty">No purchases found.</td></tr> }
+    </tbody></table></div>
+  </article>
+</section>

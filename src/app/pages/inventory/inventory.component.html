@@ -1,12 +1,110 @@
 <section class="page">
-  <h1 class="page-title">انوینٹری</h1>
-  <div class="summary-grid inventory-summary">
-    <article class="panel summary-card"><div><strong>{{ total().toLocaleString() }} یونٹ</strong><span>کل اسٹاک، گودام + دکان</span></div><span class="summary-icon"><lucide-icon [img]="icons.Boxes" [size]="22" /></span></article>
-    <article class="panel summary-card"><div><strong>{{ low() }} مصنوعات</strong><span class="warning-text">کم اسٹاک، فوری آرڈر کریں</span></div><span class="summary-icon warning"><lucide-icon [img]="icons.AlertTriangle" [size]="22" /></span></article>
-    <article class="panel summary-card"><div><strong>{{ out() }} مصنوعات</strong><span class="danger-text">آؤٹ آف اسٹاک</span></div><span class="summary-icon danger"><lucide-icon [img]="icons.PackageX" [size]="22" /></span></article>
+  <div class="page-head">
+    <h1 class="page-title">Inventory</h1>
+    <button class="btn btn-primary" (click)="openAdd()"><lucide-icon [img]="icons.PackagePlus" [size]="17" /> Add Product</button>
   </div>
-  <article class="panel transfer-panel"><div class="panel-heading"><h2>اسٹاک ٹرانسفر: گودام سے دکان</h2></div><div class="transfer-form"><label>مصنوعات<select class="select" [ngModel]="selectedId()" (ngModelChange)="selectedId.set(+$event)">@for(item of store.stock();track item.id){<option [value]="item.id">{{ item.name }}</option>}</select></label><label>تعداد<input class="search" type="number" min="1" [ngModel]="quantity()" (ngModelChange)="quantity.set(+$event)" placeholder="0"/></label><button class="btn btn-primary" (click)="transfer()"><lucide-icon [img]="icons.RefreshCw" [size]="16" /> ٹرانسفر کریں</button></div>@if(message()){<p class="message" [class.error]="message().includes('نہیں')">{{ message() }}</p>}</article>
-  <article class="panel data-panel stock-table"><div class="panel-heading"><h2>اسٹاک کی تفصیل</h2><div><button class="btn"><lucide-icon [img]="icons.Download" [size]="15" /> ایکسپورٹ</button><button class="btn muted"><lucide-icon [img]="icons.Printer" [size]="15" /> پرنٹ</button></div></div><div class="table-scroll"><table><thead><tr><th>مصنوعات</th><th>قسم</th><th>گودام اسٹاک</th><th>دکان اسٹاک</th><th>کل اسٹاک</th><th>کم سے کم</th><th>حالت</th></tr></thead><tbody>
-    @for(item of store.stock();track item.id){<tr><td><strong>{{ item.name }}</strong></td><td>{{ item.category }}</td><td class="money">{{ item.warehouse }}</td><td>{{ item.shop }}</td><td class="money">{{ item.warehouse + item.shop }}</td><td>{{ item.minimum }}</td><td><span class="badge" [class.badge-success]="item.warehouse + item.shop > item.minimum * 2" [class.badge-warning]="item.warehouse + item.shop <= item.minimum * 2 && item.warehouse + item.shop > 0" [class.badge-danger]="item.warehouse + item.shop === 0">{{ item.warehouse + item.shop === 0 ? 'ختم' : item.warehouse + item.shop <= item.minimum * 2 ? 'کم اسٹاک' : 'دستیاب' }}</span></td></tr>}
-  </tbody></table></div></article>
+
+  <div class="summary-grid inventory-summary">
+    <article class="panel summary-card"><div><strong>{{ total().toLocaleString() }}</strong><span>Total stock</span></div><span class="summary-icon"><lucide-icon [img]="icons.Boxes" [size]="22" /></span></article>
+    <article class="panel summary-card"><div><strong>{{ warehouseTotal().toLocaleString() }}</strong><span>Godown stock</span></div><span class="summary-icon warning"><lucide-icon [img]="icons.Warehouse" [size]="22" /></span></article>
+    <article class="panel summary-card"><div><strong>{{ shopTotal().toLocaleString() }}</strong><span>Dukan stock</span></div><span class="summary-icon"><lucide-icon [img]="icons.Store" [size]="22" /></span></article>
+    <article class="panel summary-card"><div><strong>{{ low() }} / {{ out() }}</strong><span>Low / out products</span></div><span class="summary-icon danger"><lucide-icon [img]="icons.PackageX" [size]="22" /></span></article>
+  </div>
+
+  <article class="panel transfer-panel">
+    <div class="panel-heading"><h2>Dukan / Godown Transfer</h2></div>
+    <div class="transfer-form">
+      <label>Product
+        <select class="select" [ngModel]="selectedId()" (ngModelChange)="selectedId.set(+$event)">
+          @for(item of store.stock(); track item.id) { <option [value]="item.id">{{ item.name }}</option> }
+        </select>
+      </label>
+      <label>From
+        <select class="select" [ngModel]="from()" (ngModelChange)="setFrom($event)">
+          <option value="warehouse">Godown</option>
+          <option value="shop">Dukan</option>
+        </select>
+      </label>
+      <label>To
+        <input class="search readonly" [value]="locationLabel(to())" readonly />
+      </label>
+      <label>Quantity
+        <input class="search" type="number" min="1" [ngModel]="quantity()" (ngModelChange)="quantity.set(+$event)" placeholder="0" />
+      </label>
+      <button class="btn btn-primary" (click)="transfer()"><lucide-icon [img]="icons.ArrowLeftRight" [size]="16" /> Transfer</button>
+    </div>
+    @if(selectedItem()) {
+      <p class="stock-note">Selected: Godown {{ selectedItem()?.warehouse }} / Dukan {{ selectedItem()?.shop }} {{ selectedItem()?.unit }}</p>
+    }
+    @if(message()) { <p class="message" [class.error]="message().includes('ghalat') || message().includes('zaroori')">{{ message() }}</p> }
+  </article>
+
+  <article class="panel data-panel stock-table">
+    <div class="panel-heading"><h2>Stock Detail</h2></div>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr><th>Product</th><th>Category</th><th>Godown</th><th>Dukan</th><th>Total</th><th>Minimum</th><th>Status</th><th>Actions</th></tr>
+        </thead>
+        <tbody>
+          @for(item of store.stock(); track item.id) {
+            <tr>
+              <td><strong>{{ item.name }}</strong><small>{{ item.unit }}</small></td>
+              <td>{{ item.category }}</td>
+              <td class="money">{{ item.warehouse }}</td>
+              <td class="money">{{ item.shop }}</td>
+              <td class="money">{{ item.warehouse + item.shop }}</td>
+              <td>{{ item.minimum }}</td>
+              <td><span class="badge" [class.badge-success]="item.warehouse + item.shop > item.minimum * 2" [class.badge-warning]="item.warehouse + item.shop <= item.minimum * 2 && item.warehouse + item.shop > 0" [class.badge-danger]="item.warehouse + item.shop === 0">{{ item.warehouse + item.shop === 0 ? 'Out' : item.warehouse + item.shop <= item.minimum * 2 ? 'Low' : 'Available' }}</span></td>
+              <td><div class="icon-actions">
+                <button class="icon-btn" title="View" (click)="openView(item)"><lucide-icon [img]="icons.Eye" [size]="14" /></button>
+                <button class="icon-btn edit" title="Edit" (click)="openEdit(item)"><lucide-icon [img]="icons.Pencil" [size]="14" /></button>
+                <button class="icon-btn danger" title="Delete" (click)="deleteItem(item)"><lucide-icon [img]="icons.Trash2" [size]="14" /></button>
+              </div></td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </article>
+
+  <article class="panel data-panel movement-table">
+    <div class="panel-heading"><h2>Transfer History</h2></div>
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>Time</th><th>Product</th><th>Quantity</th><th>From</th><th>To</th><th>Note</th></tr></thead>
+        <tbody>
+          @for(move of store.movements(); track move.id) {
+            <tr><td>{{ move.time }}</td><td>{{ move.itemName }}</td><td class="money">{{ move.quantity }}</td><td>{{ locationLabel(move.from) }}</td><td>{{ locationLabel(move.to) }}</td><td>{{ move.note }}</td></tr>
+          } @empty {
+            <tr><td colspan="6" class="empty">Abhi koi transfer record nahi.</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </article>
+
+  @if(modalMode()) {
+    <div class="modal-wrap">
+      <button class="modal-backdrop" (click)="closeModal()"></button>
+      <article class="panel modal">
+        <div class="modal-head">
+          <h2>{{ modalMode() === 'add' ? 'Add Product' : modalMode() === 'edit' ? 'Edit Product' : 'Product Detail' }}</h2>
+          <button class="icon-btn" (click)="closeModal()"><lucide-icon [img]="icons.X" [size]="16" /></button>
+        </div>
+        <div class="form-grid">
+          <label>Product name <input [readonly]="modalMode() === 'view'" [ngModel]="form().name" (ngModelChange)="updateForm('name', $event)" /></label>
+          <label>Category <input [readonly]="modalMode() === 'view'" [ngModel]="form().category" (ngModelChange)="updateForm('category', $event)" /></label>
+          <label>Godown stock <input type="number" min="0" [readonly]="modalMode() === 'view'" [ngModel]="form().warehouse" (ngModelChange)="updateForm('warehouse', $event)" /></label>
+          <label>Dukan stock <input type="number" min="0" [readonly]="modalMode() === 'view'" [ngModel]="form().shop" (ngModelChange)="updateForm('shop', $event)" /></label>
+          <label>Minimum <input type="number" min="0" [readonly]="modalMode() === 'view'" [ngModel]="form().minimum" (ngModelChange)="updateForm('minimum', $event)" /></label>
+          <label>Unit <input [readonly]="modalMode() === 'view'" [ngModel]="form().unit" (ngModelChange)="updateForm('unit', $event)" /></label>
+        </div>
+        <div class="modal-actions">
+          @if(modalMode() !== 'view') { <button class="btn btn-primary" (click)="saveItem()"><lucide-icon [img]="icons.Save" [size]="16" /> Save</button> }
+          <button class="btn" (click)="closeModal()">Close</button>
+        </div>
+      </article>
+    </div>
+  }
 </section>

@@ -1,25 +1,115 @@
 <section class="page">
-  <div class="welcome"><div><h1 class="page-title">ڈیش بورڈ</h1><p>آج کے کاروبار کی تازہ صورتحال</p></div><span>16 جولائی 2026</span></div>
+  <div class="welcome">
+    <div>
+      <h1 class="page-title">Dashboard</h1>
+      <p>Aaj ke karobar ki taza surat-e-haal</p>
+    </div>
+    <span>18 July 2026</span>
+  </div>
+
   <div class="summary-grid dashboard-grid">
     @for (card of cards(); track card.title) {
       <article class="panel summary-card">
-        <div><strong>{{ card.value }}</strong><div>{{ card.title }}</div><span>{{ card.note }}</span></div>
-        <span class="summary-icon" [class]="'summary-icon ' + card.tone"><lucide-icon [img]="card.icon" [size]="22" /></span>
+        <div>
+          <strong>{{ card.value }}</strong>
+          <div>{{ card.title }}</div>
+          <span>{{ card.note }}</span>
+        </div>
+        <span class="summary-icon" [class]="'summary-icon ' + card.tone">
+          <lucide-icon [img]="card.icon" [size]="22" />
+        </span>
       </article>
     }
   </div>
+
+  <div class="stock-split">
+    <article class="panel stock-location-panel godown">
+      <div class="panel-heading">
+        <h2>Godown ka samaan</h2>
+        <a routerLink="/inventory">Inventory</a>
+      </div>
+      <div class="location-list">
+        @for (item of store.stock(); track item.id) {
+          <div class="location-row">
+            <div>
+              <strong>{{ item.name }}</strong>
+              <small>{{ item.category }} - {{ item.unit }}</small>
+            </div>
+            <b>{{ item.warehouse.toLocaleString() }}</b>
+          </div>
+        }
+      </div>
+    </article>
+
+    <article class="panel stock-location-panel shop">
+      <div class="panel-heading">
+        <h2>Dukan ka samaan</h2>
+        <a routerLink="/inventory">Inventory</a>
+      </div>
+      <div class="location-list">
+        @for (item of store.stock(); track item.id) {
+          <div class="location-row">
+            <div>
+              <strong>{{ item.name }}</strong>
+              <small>{{ item.category }} - {{ item.unit }}</small>
+            </div>
+            <b>{{ item.shop.toLocaleString() }}</b>
+          </div>
+        }
+      </div>
+    </article>
+  </div>
+
   <div class="dashboard-columns">
     <article class="panel data-panel recent-sales">
-      <div class="panel-heading"><h2>حالیہ فروخت</h2><a routerLink="/sales">سب دیکھیں</a></div>
-      <div class="table-scroll"><table><thead><tr><th>انوائس</th><th>صارف</th><th>رقم</th><th>حالت</th></tr></thead><tbody>
-        @for (sale of store.sales(); track sale.invoice) { <tr><td class="money">{{ sale.invoice }}</td><td>{{ sale.customer }}<small>{{ sale.time }}</small></td><td class="money">Rs{{ sale.amount.toLocaleString() }}</td><td><span class="badge" [class.badge-success]="sale.payment === 'فعال'" [class.badge-warning]="sale.payment !== 'فعال'">{{ sale.payment }}</span></td></tr> }
-      </tbody></table></div>
+      <div class="panel-heading">
+        <h2>Recent sales</h2>
+        <a routerLink="/sales">Sab dekhein</a>
+      </div>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr><th>Invoice</th><th>Customer</th><th>Amount</th><th>Status</th></tr>
+          </thead>
+          <tbody>
+            @for (sale of store.sales(); track sale.invoice) {
+              <tr>
+                <td class="money">{{ sale.invoice }}</td>
+                <td>{{ sale.customer }}<small>{{ sale.time }}</small></td>
+                <td class="money">Rs{{ sale.amount.toLocaleString() }}</td>
+                <td>
+                  <span class="badge" [class.badge-success]="sale.payment === 'paid'" [class.badge-warning]="sale.payment !== 'paid'">{{ sale.payment }}</span>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
     </article>
+
     <article class="panel alerts">
-      <div class="panel-heading"><h2>اسٹاک الرٹس</h2><a routerLink="/inventory">انوینٹری</a></div>
+      <div class="panel-heading">
+        <h2>Stock alerts</h2>
+        <a routerLink="/inventory">Inventory</a>
+      </div>
       <div class="alert-list">
-        @for (item of lowStock(); track item.id) { <div class="alert-row"><span><lucide-icon [img]="icons.AlertTriangle" [size]="18" /></span><div><strong>{{ item.name }}</strong><small>صرف {{ item.warehouse + item.shop }} {{ item.unit }} دستیاب</small></div><b>کم</b></div> }
-        @if (!lowStock().length) { <div class="empty"><lucide-icon [img]="icons.PackageCheck" [size]="30" /><span>تمام اسٹاک مناسب مقدار میں ہے</span></div> }
+        @for (item of lowStock(); track item.id) {
+          <div class="alert-row">
+            <span><lucide-icon [img]="icons.AlertTriangle" [size]="18" /></span>
+            <div>
+              <strong>{{ item.name }}</strong>
+              <small>Total {{ item.warehouse + item.shop }} {{ item.unit }} available</small>
+              <small>Godown {{ item.warehouse }} / Dukan {{ item.shop }} {{ item.unit }}</small>
+            </div>
+            <b>Low</b>
+          </div>
+        }
+        @if (!lowStock().length) {
+          <div class="empty">
+            <lucide-icon [img]="icons.PackageCheck" [size]="30" />
+            <span>Tamam stock munasib miqdar mein hai</span>
+          </div>
+        }
       </div>
     </article>
   </div>

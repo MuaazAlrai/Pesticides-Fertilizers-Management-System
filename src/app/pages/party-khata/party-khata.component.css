@@ -1,0 +1,29 @@
+.khata-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 14px; }
+.khata-head p { margin: 4px 0 0; color: var(--muted); font-size: 13px; }
+.party-select { display: grid; gap: 6px; min-width: min(420px, 100%); color: var(--muted); font-size: 12px; font-weight: 700; }
+.party-select select { height: 42px; border: 1px solid #ceddd4; border-radius: 8px; padding: 7px 10px; background: white; color: var(--ink); font-weight: 800; }
+.selected-party { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; padding: 14px 16px; }
+.party-icon { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 8px; color: var(--green-800); background: var(--green-100); }
+.selected-party strong, .selected-party small { display: block; }
+.selected-party small { margin-top: 3px; color: var(--muted); }
+.khata-summary { grid-template-columns: repeat(4, minmax(0, 1fr)); margin-bottom: 16px; }
+.summary-icon.green { color: #079447; background: #e4f8ec; }
+.summary-icon.red { color: var(--danger); background: #ffe8e8; }
+.summary-icon.blue { color: #078bad; background: #e2f5fa; }
+.sale { background: #e4f8ec; color: #067a3b; }
+.purchase { background: #fff0e7; color: #a34b03; }
+.cash, .advance { color: #079447; font-weight: 800; }
+.due, .danger { color: var(--danger); }
+.edit { color: var(--orange); }
+.empty { text-align: center; color: var(--muted); padding: 22px; }
+a.icon-btn { text-decoration: none; }
+
+@media (max-width: 900px) {
+  .khata-head { display: block; }
+  .party-select { margin-top: 12px; }
+  .khata-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 520px) {
+  .khata-summary { grid-template-columns: 1fr; }
+}
