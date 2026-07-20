@@ -1,7 +1,9 @@
 <section class="page">
   <div class="page-head">
-    <h1 class="page-title">Inventory</h1>
-    <button class="btn btn-primary" (click)="openAdd()"><lucide-icon [img]="icons.PackagePlus" [size]="17" /> Add Product</button>
+    <h1 class="page-title">{{ pageTitle() }}</h1>
+    @if(mode() === 'all') {
+      <button class="btn btn-primary" (click)="openAdd()"><lucide-icon [img]="icons.PackagePlus" [size]="17" /> Add Item</button>
+    }
   </div>
 
   <div class="summary-grid inventory-summary">
@@ -11,10 +13,11 @@
     <article class="panel summary-card"><div><strong>{{ low() }} / {{ out() }}</strong><span>Low / out products</span></div><span class="summary-icon danger"><lucide-icon [img]="icons.PackageX" [size]="22" /></span></article>
   </div>
 
+  @if(mode() === 'all') {
   <article class="panel transfer-panel">
     <div class="panel-heading"><h2>Dukan / Godown Transfer</h2></div>
     <div class="transfer-form">
-      <label>Product
+      <label>Khad / Spray Item
         <select class="select" [ngModel]="selectedId()" (ngModelChange)="selectedId.set(+$event)">
           @for(item of store.stock(); track item.id) { <option [value]="item.id">{{ item.name }}</option> }
         </select>
@@ -38,23 +41,34 @@
     }
     @if(message()) { <p class="message" [class.error]="message().includes('ghalat') || message().includes('zaroori')">{{ message() }}</p> }
   </article>
+  }
 
   <article class="panel data-panel stock-table">
-    <div class="panel-heading"><h2>Stock Detail</h2></div>
+    <div class="panel-heading"><h2>{{ detailTitle() }}</h2></div>
     <div class="table-scroll">
       <table>
         <thead>
-          <tr><th>Product</th><th>Category</th><th>Godown</th><th>Dukan</th><th>Total</th><th>Minimum</th><th>Status</th><th>Actions</th></tr>
+          @if(mode() === 'all') {
+          <tr><th>Item</th><th>Category</th><th>Godown</th><th>Dukan</th><th>Total</th><th>Minimum</th><th>Status</th><th>Actions</th></tr>
+          } @else {
+            <tr><th>Item</th><th>Category</th><th>{{ currentLocationLabel() }}</th><th>Total stock</th><th>Unit</th><th>Status</th><th>Actions</th></tr>
+          }
         </thead>
         <tbody>
-          @for(item of store.stock(); track item.id) {
+          @for(item of visibleStock(); track item.id) {
             <tr>
               <td><strong>{{ item.name }}</strong><small>{{ item.unit }}</small></td>
               <td>{{ item.category }}</td>
-              <td class="money">{{ item.warehouse }}</td>
-              <td class="money">{{ item.shop }}</td>
-              <td class="money">{{ item.warehouse + item.shop }}</td>
-              <td>{{ item.minimum }}</td>
+              @if(mode() === 'all') {
+                <td class="money">{{ item.warehouse }}</td>
+                <td class="money">{{ item.shop }}</td>
+                <td class="money">{{ item.warehouse + item.shop }}</td>
+                <td>{{ item.minimum }}</td>
+              } @else {
+                <td class="money">{{ locationQty(item) }}</td>
+                <td class="money">{{ item.warehouse + item.shop }}</td>
+                <td>{{ item.unit }}</td>
+              }
               <td><span class="badge" [class.badge-success]="item.warehouse + item.shop > item.minimum * 2" [class.badge-warning]="item.warehouse + item.shop <= item.minimum * 2 && item.warehouse + item.shop > 0" [class.badge-danger]="item.warehouse + item.shop === 0">{{ item.warehouse + item.shop === 0 ? 'Out' : item.warehouse + item.shop <= item.minimum * 2 ? 'Low' : 'Available' }}</span></td>
               <td><div class="icon-actions">
                 <button class="icon-btn" title="View" (click)="openView(item)"><lucide-icon [img]="icons.Eye" [size]="14" /></button>
@@ -62,17 +76,20 @@
                 <button class="icon-btn danger" title="Delete" (click)="deleteItem(item)"><lucide-icon [img]="icons.Trash2" [size]="14" /></button>
               </div></td>
             </tr>
+          } @empty {
+            <tr><td [attr.colspan]="mode() === 'all' ? 8 : 7" class="empty">Is jagah par abhi koi stock nahi.</td></tr>
           }
         </tbody>
       </table>
     </div>
   </article>
 
+  @if(mode() === 'all') {
   <article class="panel data-panel movement-table">
     <div class="panel-heading"><h2>Transfer History</h2></div>
     <div class="table-scroll">
       <table>
-        <thead><tr><th>Time</th><th>Product</th><th>Quantity</th><th>From</th><th>To</th><th>Note</th></tr></thead>
+        <thead><tr><th>Time</th><th>Item</th><th>Quantity</th><th>From</th><th>To</th><th>Note</th></tr></thead>
         <tbody>
           @for(move of store.movements(); track move.id) {
             <tr><td>{{ move.time }}</td><td>{{ move.itemName }}</td><td class="money">{{ move.quantity }}</td><td>{{ locationLabel(move.from) }}</td><td>{{ locationLabel(move.to) }}</td><td>{{ move.note }}</td></tr>
@@ -83,17 +100,18 @@
       </table>
     </div>
   </article>
+  }
 
   @if(modalMode()) {
     <div class="modal-wrap">
       <button class="modal-backdrop" (click)="closeModal()"></button>
       <article class="panel modal">
         <div class="modal-head">
-          <h2>{{ modalMode() === 'add' ? 'Add Product' : modalMode() === 'edit' ? 'Edit Product' : 'Product Detail' }}</h2>
+          <h2>{{ modalMode() === 'add' ? 'Add Item' : modalMode() === 'edit' ? 'Edit Item' : 'Item Detail' }}</h2>
           <button class="icon-btn" (click)="closeModal()"><lucide-icon [img]="icons.X" [size]="16" /></button>
         </div>
         <div class="form-grid">
-          <label>Product name <input [readonly]="modalMode() === 'view'" [ngModel]="form().name" (ngModelChange)="updateForm('name', $event)" /></label>
+          <label>Item name <input [readonly]="modalMode() === 'view'" [ngModel]="form().name" (ngModelChange)="updateForm('name', $event)" /></label>
           <label>Category <input [readonly]="modalMode() === 'view'" [ngModel]="form().category" (ngModelChange)="updateForm('category', $event)" /></label>
           <label>Godown stock <input type="number" min="0" [readonly]="modalMode() === 'view'" [ngModel]="form().warehouse" (ngModelChange)="updateForm('warehouse', $event)" /></label>
           <label>Dukan stock <input type="number" min="0" [readonly]="modalMode() === 'view'" [ngModel]="form().shop" (ngModelChange)="updateForm('shop', $event)" /></label>

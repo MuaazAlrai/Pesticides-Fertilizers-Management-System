@@ -22,44 +22,6 @@
     }
   </div>
 
-  <div class="stock-split">
-    <article class="panel stock-location-panel godown">
-      <div class="panel-heading">
-        <h2>Godown ka samaan</h2>
-        <a routerLink="/inventory">Inventory</a>
-      </div>
-      <div class="location-list">
-        @for (item of store.stock(); track item.id) {
-          <div class="location-row">
-            <div>
-              <strong>{{ item.name }}</strong>
-              <small>{{ item.category }} - {{ item.unit }}</small>
-            </div>
-            <b>{{ item.warehouse.toLocaleString() }}</b>
-          </div>
-        }
-      </div>
-    </article>
-
-    <article class="panel stock-location-panel shop">
-      <div class="panel-heading">
-        <h2>Dukan ka samaan</h2>
-        <a routerLink="/inventory">Inventory</a>
-      </div>
-      <div class="location-list">
-        @for (item of store.stock(); track item.id) {
-          <div class="location-row">
-            <div>
-              <strong>{{ item.name }}</strong>
-              <small>{{ item.category }} - {{ item.unit }}</small>
-            </div>
-            <b>{{ item.shop.toLocaleString() }}</b>
-          </div>
-        }
-      </div>
-    </article>
-  </div>
-
   <div class="dashboard-columns">
     <article class="panel data-panel recent-sales">
       <div class="panel-heading">

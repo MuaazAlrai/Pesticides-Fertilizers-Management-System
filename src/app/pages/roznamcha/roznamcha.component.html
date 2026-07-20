@@ -75,4 +75,26 @@
       </table>
     </div>
   </article>
+
+  <article class="panel data-panel customer-daily">
+    <div class="panel-heading"><h2>Supplier wise purchase</h2></div>
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>Supplier</th><th>Bills</th><th>Total purchase</th><th>Naqad diya</th><th>Baqaya</th></tr></thead>
+        <tbody>
+          @for(row of supplierRows(); track row.name) {
+            <tr>
+              <td><strong>{{ row.name }}</strong></td>
+              <td class="money">{{ row.bills }}</td>
+              <td class="money">Rs{{ row.total.toLocaleString() }}</td>
+              <td class="money cash">Rs{{ row.cash.toLocaleString() }}</td>
+              <td class="money due">Rs{{ row.due.toLocaleString() }}</td>
+            </tr>
+          } @empty {
+            <tr><td colspan="5" class="empty">Is date purchase record nahi mila.</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </article>
 </section>

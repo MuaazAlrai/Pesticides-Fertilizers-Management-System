@@ -1,5 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Download, Eye, MessageCircle, Pencil, Plus, Printer, RotateCcw, Save, Trash2, TrendingUp, WalletCards, X, LucideAngularModule } from 'lucide-angular';
 import { ErpStoreService, PaymentStatus, Purchase, PurchaseInput, SaleLine, StockLocation } from '../../core/erp-store.service';
 
@@ -9,22 +10,25 @@ interface PurchaseLineDraft { itemId: number; quantity: number; rate: number; so
 
 @Component({
   selector: 'app-purchase',
-  imports: [FormsModule, LucideAngularModule],
+  imports: [FormsModule, RouterLink, LucideAngularModule],
   templateUrl: './purchase.component.html',
   styleUrl: './purchase.component.css',
 })
 export class PurchaseComponent {
   readonly store = inject(ErpStoreService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   readonly icons = { Download, Eye, MessageCircle, Pencil, Plus, Printer, RotateCcw, Save, Trash2, TrendingUp, WalletCards, X };
   readonly search = signal('');
   readonly period = signal<Period>('today');
   readonly fromDate = signal(this.todayIso());
   readonly toDate = signal(this.todayIso());
-  readonly formVisible = signal(true);
+  readonly formVisible = signal(false);
+  readonly formPage = signal(false);
   readonly editingInvoice = signal<string | null>(null);
   readonly viewing = signal<Purchase | null>(null);
   readonly message = signal('');
-  readonly form = signal({ date: this.todayIso(), supplierId: 0, supplier: '', payType: 'cash' as PayType, paidCash: 0 });
+  readonly form = signal({ date: this.todayIso(), supplierId: 0, supplier: '', payType: 'cash' as PayType, paidCash: 0, purchaseMan: '' });
   readonly lines = signal<PurchaseLineDraft[]>([this.blankLine()]);
 
   readonly filtered = computed(() => {
@@ -36,15 +40,42 @@ export class PurchaseComponent {
   readonly billTotal = computed(() => this.lines().reduce((sum, line) => sum + this.lineTotal(line), 0));
   readonly balance = computed(() => Math.max(0, this.billTotal() - Number(this.form().paidCash || 0)));
 
+  constructor() {
+    this.route.data.subscribe(data => {
+      this.formPage.set(data['mode'] === 'form');
+      if (data['mode'] !== 'form') {
+        this.formVisible.set(false);
+        this.editingInvoice.set(null);
+        return;
+      }
+
+      const invoice = this.route.snapshot.paramMap.get('invoice');
+      if (invoice) {
+        const purchase = this.store.purchases().find(row => row.invoice === invoice);
+        if (purchase) this.loadPurchaseForEdit(purchase);
+        else {
+          this.message.set('Bill nahi mila.');
+          this.startNewPurchase();
+        }
+      } else {
+        this.startNewPurchase();
+      }
+    });
+  }
+
   startNewPurchase(): void {
     this.editingInvoice.set(null);
     this.viewing.set(null);
-    this.form.set({ date: this.todayIso(), supplierId: 0, supplier: '', payType: 'cash', paidCash: 0 });
+    this.form.set({ date: this.todayIso(), supplierId: 0, supplier: '', payType: 'cash', paidCash: 0, purchaseMan: '' });
     this.lines.set([this.blankLine()]);
     this.formVisible.set(true);
   }
 
   editPurchase(purchase: Purchase): void {
+    void this.router.navigate(['/purchase/edit', purchase.invoice]);
+  }
+
+  loadPurchaseForEdit(purchase: Purchase): void {
     const supplier = this.store.customers().find(row => row.name === purchase.supplier || row.id === purchase.supplierId);
     this.editingInvoice.set(purchase.invoice);
     this.viewing.set(null);
@@ -54,6 +85,7 @@ export class PurchaseComponent {
       supplier: purchase.supplier,
       payType: purchase.payType ?? this.payTypeFromPayment(purchase.payment),
       paidCash: purchase.paidCash ?? (this.isPaid(purchase.payment) ? purchase.amount : 0),
+      purchaseMan: purchase.purchaseMan ?? '',
     });
     this.lines.set(this.linesFromPurchase(purchase));
     this.formVisible.set(true);
@@ -75,6 +107,7 @@ export class PurchaseComponent {
       payment: this.paymentFromPayType(payType),
       payType,
       kind: this.payTypeLabel(payType),
+      purchaseMan: this.form().purchaseMan.trim(),
       itemId: lines[0].itemId,
       quantity: lines.reduce((sum, line) => sum + line.quantity, 0),
       destination: lines[0].source,
@@ -96,6 +129,7 @@ export class PurchaseComponent {
       if (!ok) return;
     }
     this.startNewPurchase();
+    if (this.formPage()) void this.router.navigate(['/purchase']);
   }
 
   deletePurchase(purchase: Purchase): void {
@@ -121,7 +155,7 @@ export class PurchaseComponent {
     return item ? `Dukan ${item.shop} / Godown ${item.warehouse} ${item.unit}` : '';
   }
 
-  updateForm(key: 'date' | 'supplierId' | 'supplier' | 'payType' | 'paidCash', value: string | number): void {
+  updateForm(key: 'date' | 'supplierId' | 'supplier' | 'payType' | 'paidCash' | 'purchaseMan', value: string | number): void {
     this.form.update(form => {
       const next = { ...form, [key]: key === 'paidCash' || key === 'supplierId' ? Number(value) || 0 : value };
       if (key === 'supplierId') next.supplier = this.store.customers().find(row => row.id === Number(value))?.name ?? '';
@@ -155,7 +189,14 @@ export class PurchaseComponent {
   }
   private defaultRate(itemId: number): number {
     const item = this.store.stock().find(row => row.id === Number(itemId));
-    return item ? Math.max(1, Math.round(((item.warehouse + item.shop) || 1) * 8)) : 0;
+    if (!item) return 0;
+    if (item.name.includes('DAP')) return 11600;
+    if (item.name.includes('Urea')) return 5100;
+    if (item.name.includes('Glyphosate')) return 1600;
+    if (item.name.includes('Lambda')) return 780;
+    if (item.name.includes('Zinc')) return 1900;
+    if (item.name.includes('Fungicide')) return 1220;
+    return Math.max(1, Math.round(((item.warehouse + item.shop) || 1) * 8));
   }
   private linesFromPurchase(purchase: Purchase): PurchaseLineDraft[] {
     if (purchase.lines?.length) return purchase.lines.map(line => ({ itemId: line.itemId, quantity: line.quantity, rate: line.rate, source: line.source }));

@@ -4,18 +4,6 @@
 .dashboard-grid { grid-template-columns: repeat(4,minmax(0,1fr)); }
 .summary-card > div > div { font-size: 13px; }
 .summary-icon.orange { color: var(--orange); background: #fff0e7; }.summary-icon.purple { color: #7947e5; background: #f1eaff; }.summary-icon.blue { color: #078bad; background: #e2f5fa; }.summary-icon.red { color: var(--danger); background: #ffe9e9; }.summary-icon.mint { color: #0baf59; background: #e4f8ec; }
-.stock-split { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 16px; margin-bottom: 16px; }
-.stock-location-panel { overflow: hidden; }
-.stock-location-panel.godown { border-top: 3px solid var(--orange); }
-.stock-location-panel.shop { border-top: 3px solid var(--green-700); }
-.location-list { padding: 0 16px 16px; display: grid; gap: 8px; }
-.location-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0; border-bottom: 1px solid #e6ece8; }
-.location-row:last-child { border-bottom: 0; }
-.location-row div { min-width: 0; }
-.location-row strong, .location-row small { display: block; }
-.location-row strong { font-size: 12px; }
-.location-row small { color: var(--muted); font-size: 10px; }
-.location-row b { font-size: 14px; color: var(--green-900); white-space: nowrap; }
 .dashboard-columns { display: grid; grid-template-columns: 1.35fr .75fr; gap: 16px; }
 .panel-heading a { color: var(--green-800); text-decoration: none; font-size: 12px; }
 td small { display: block; color: var(--muted); font-size: 10px; }
@@ -25,5 +13,5 @@ td small { display: block; color: var(--muted); font-size: 10px; }
 .alert-row div { flex: 1; min-width: 0; }.alert-row strong,.alert-row small { display: block; }.alert-row strong { font-size: 12px; }.alert-row small { color: var(--muted); font-size: 10px; }.alert-row b { color: var(--danger); font-size: 11px; }
 .empty { min-height: 130px; display: grid; place-items: center; align-content: center; gap: 8px; color: var(--muted); font-size: 12px; }
 @media(max-width:1100px){.dashboard-grid{grid-template-columns:repeat(2,minmax(0,1fr));}}
-@media(max-width:750px){.dashboard-columns,.stock-split{grid-template-columns:1fr}.welcome>span{display:none}}
+@media(max-width:750px){.dashboard-columns{grid-template-columns:1fr}.welcome>span{display:none}}
 @media(max-width:500px){.dashboard-grid{grid-template-columns:1fr}}

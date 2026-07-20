@@ -1,25 +1,35 @@
 <section class="page">
-  <h1 class="page-title">Purchase</h1>
+  <div class="sales-page-head">
+    <h1 class="page-title">{{ formPage() ? (editingInvoice() ? 'Edit Purchase' : 'New Purchase') : 'Purchase' }}</h1>
+    @if(formPage()) {
+      <a class="btn" routerLink="/purchase">Back to Purchase</a>
+    } @else {
+      <a class="btn btn-primary" routerLink="/purchase/new"><lucide-icon [img]="icons.Plus" [size]="17" /> New Purchase</a>
+    }
+  </div>
+
+  @if(!formPage()) {
   <div class="summary-grid sales-summary">
     <article class="panel summary-card"><div><strong>Rs{{ total().toLocaleString() }}</strong><span>Total purchase</span></div><span class="summary-icon"><lucide-icon [img]="icons.TrendingUp" [size]="21" /></span></article>
     <article class="panel summary-card"><div><strong>Rs{{ due().toLocaleString() }}</strong><span>Balance</span></div><span class="summary-icon red"><lucide-icon [img]="icons.WalletCards" [size]="21" /></span></article>
     <article class="panel summary-card"><div><strong>{{ filtered().length }}</strong><span>Bills</span></div><span class="summary-icon orange"><lucide-icon [img]="icons.RotateCcw" [size]="21" /></span></article>
   </div>
+  }
 
   @if(message()) { <p class="message">{{ message() }}</p> }
 
-  <article class="panel sale-entry">
+  @if(formPage()) {
+  <article class="panel sale-entry sale-page-form">
     <div class="panel-heading sales-heading classic-toolbar">
       <h2>{{ editingInvoice() ? 'Edit Purchase' : 'Purchase Form' }}</h2>
       <div class="actions">
-        <button class="btn btn-primary" (click)="startNewPurchase()"><lucide-icon [img]="icons.Plus" [size]="17" /> New Purchase</button>
-        <button class="btn" (click)="formVisible.set(!formVisible())">{{ formVisible() ? 'Hide Form' : 'Show Form' }}</button>
+        <button class="btn" (click)="startNewPurchase()"><lucide-icon [img]="icons.Plus" [size]="17" /> Clear Form</button>
       </div>
     </div>
 
     @if(formVisible()) {
       <div class="sale-form classic-sale-form">
-        <h2 class="classic-title">Purchase - Malik Ashraf Traders</h2>
+        <h2 class="classic-title">Purchase - Khad, Spray & Pesticides</h2>
         <div class="classic-info">
           <div class="classic-box">
             <label><span>Bill #</span><input readonly [value]="editingInvoice() || 'New'" /></label>
@@ -31,13 +41,13 @@
             <label><span>Pay Type</span><select [ngModel]="form().payType" (ngModelChange)="updateForm('payType', $event)"><option value="cash">Cash</option><option value="credit">Credit</option><option value="partial">Partial</option></select></label>
             <label><span>Supplier Account</span><select [ngModel]="form().supplierId" (ngModelChange)="updateForm('supplierId', $event)"><option [value]="0">Select supplier</option>@for(customer of store.customers(); track customer.id) { <option [value]="customer.id">{{ customer.name }}</option> }</select></label>
             <label><span>Balance</span><input readonly [value]="balance().toLocaleString()" /></label>
-            <label><span>Purchase Man</span><input readonly value="Malik Ashraf" /></label>
+            <label><span>Purchase Man</span><input [ngModel]="form().purchaseMan" (ngModelChange)="updateForm('purchaseMan', $event)" placeholder="Purchase man ka naam likhein" /></label>
           </div>
         </div>
 
         <div class="table-scroll line-editor">
           <table>
-            <thead><tr><th>Sr#</th><th>Product Name</th><th>Add To</th><th>Current Stock</th><th>Qty</th><th>Rs</th><th>Total</th><th>Action</th></tr></thead>
+            <thead><tr><th>Sr#</th><th>Item Name</th><th>Add To</th><th>Current Stock</th><th>Qty</th><th>Rs</th><th>Total</th><th>Action</th></tr></thead>
             <tbody>
               @for(line of lines(); track $index; let i = $index) {
                 <tr>
@@ -56,7 +66,7 @@
         </div>
 
         <div class="sale-bottom">
-          <div class="classic-actions"><button class="btn" (click)="addLine()"><lucide-icon [img]="icons.Plus" [size]="16" /> Add Product</button><button class="btn" (click)="startNewPurchase()">Cancel</button></div>
+          <div class="classic-actions"><button class="btn" (click)="addLine()"><lucide-icon [img]="icons.Plus" [size]="16" /> Add Item</button><a class="btn" routerLink="/purchase">Cancel</a></div>
           <div class="bill-box">
             <label>Total Bill <input readonly [value]="billTotal().toLocaleString()" /></label>
             <label>Paid Cash <input type="number" min="0" [ngModel]="form().paidCash" (ngModelChange)="updateForm('paidCash', $event)" /></label>
@@ -67,7 +77,9 @@
       </div>
     }
   </article>
+  }
 
+  @if(!formPage()) {
   <article class="panel data-panel">
     <div class="panel-heading sales-heading"><h2>Purchase List</h2><div class="actions"><button class="btn"><lucide-icon [img]="icons.Download" [size]="16" /> Export</button></div></div>
     <div class="filters">
@@ -79,10 +91,11 @@
       <label class="date-filter">From <input type="date" [ngModel]="fromDate()" (ngModelChange)="updateFromDate($event)" /></label>
       <label class="date-filter">To <input type="date" [ngModel]="toDate()" (ngModelChange)="updateToDate($event)" /></label>
     </div>
-    <div class="table-scroll"><table><thead><tr><th>Bill</th><th>Supplier</th><th>Date</th><th>Product</th><th>Qty</th><th>Add To</th><th>Total</th><th>Pay Type</th><th>Paid</th><th>Balance</th><th>Actions</th></tr></thead><tbody>
+    <div class="table-scroll"><table><thead><tr><th>Bill</th><th>Supplier</th><th>Date</th><th>Item</th><th>Qty</th><th>Add To</th><th>Purchase Man</th><th>Total</th><th>Pay Type</th><th>Paid</th><th>Balance</th><th>Actions</th></tr></thead><tbody>
       @for(purchase of filtered(); track purchase.invoice) {
-        <tr><td class="money">{{ purchase.invoice }}</td><td><strong>{{ purchase.supplier }}</strong></td><td>{{ purchaseDate(purchase) }}</td><td>{{ purchase.itemName || '-' }}</td><td class="money">{{ purchase.quantity || '-' }}</td><td><span class="badge source">{{ locationLabel(purchase.destination) }}</span></td><td class="money">Rs{{ purchase.amount.toLocaleString() }}</td><td>{{ purchase.payType ? payTypeLabel(purchase.payType) : paymentLabel(purchase.payment) }}</td><td class="money">Rs{{ (purchase.paidCash ?? 0).toLocaleString() }}</td><td class="money">Rs{{ (purchase.balance ?? 0).toLocaleString() }}</td><td><div class="icon-actions"><button class="icon-btn" (click)="viewPurchase(purchase)"><lucide-icon [img]="icons.Eye" [size]="14" /></button><button class="icon-btn edit" (click)="editPurchase(purchase)"><lucide-icon [img]="icons.Pencil" [size]="14" /></button><button class="icon-btn danger" (click)="deletePurchase(purchase)"><lucide-icon [img]="icons.Trash2" [size]="14" /></button></div></td></tr>
-      } @empty { <tr><td colspan="11" class="empty">No purchases found.</td></tr> }
+        <tr><td class="money">{{ purchase.invoice }}</td><td><strong>{{ purchase.supplier }}</strong></td><td>{{ purchaseDate(purchase) }}</td><td>{{ purchase.itemName || '-' }}</td><td class="money">{{ purchase.quantity || '-' }}</td><td><span class="badge source">{{ locationLabel(purchase.destination) }}</span></td><td>{{ purchase.purchaseMan || '-' }}</td><td class="money">Rs{{ purchase.amount.toLocaleString() }}</td><td>{{ purchase.payType ? payTypeLabel(purchase.payType) : paymentLabel(purchase.payment) }}</td><td class="money">Rs{{ (purchase.paidCash ?? 0).toLocaleString() }}</td><td class="money">Rs{{ (purchase.balance ?? 0).toLocaleString() }}</td><td><div class="icon-actions"><button class="icon-btn" (click)="viewPurchase(purchase)"><lucide-icon [img]="icons.Eye" [size]="14" /></button><button class="icon-btn edit" (click)="editPurchase(purchase)"><lucide-icon [img]="icons.Pencil" [size]="14" /></button><button class="icon-btn danger" (click)="deletePurchase(purchase)"><lucide-icon [img]="icons.Trash2" [size]="14" /></button></div></td></tr>
+      } @empty { <tr><td colspan="12" class="empty">No purchases found.</td></tr> }
     </tbody></table></div>
   </article>
+  }
 </section>

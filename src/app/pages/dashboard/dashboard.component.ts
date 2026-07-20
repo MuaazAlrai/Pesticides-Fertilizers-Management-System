@@ -8,10 +8,8 @@ import {
   CreditCard,
   PackageCheck,
   ShoppingCart,
-  Store,
   TrendingUp,
   Users,
-  Warehouse,
   LucideAngularModule,
 } from 'lucide-angular';
 import { ErpStoreService } from '../../core/erp-store.service';
@@ -31,18 +29,14 @@ export class DashboardComponent {
     CreditCard,
     PackageCheck,
     ShoppingCart,
-    Store,
     TrendingUp,
     Users,
-    Warehouse,
   };
 
   readonly salesTotal = computed(() => this.store.sales().reduce((sum, sale) => sum + sale.amount, 0));
   readonly profitTotal = computed(() => this.store.sales().reduce((sum, sale) => sum + sale.profit, 0));
   readonly receivables = computed(() => this.store.customers().filter(c => c.balance > 0).reduce((sum, c) => sum + c.balance, 0));
   readonly stockTotal = computed(() => this.store.stock().reduce((sum, item) => sum + item.warehouse + item.shop, 0));
-  readonly warehouseTotal = computed(() => this.store.stock().reduce((sum, item) => sum + item.warehouse, 0));
-  readonly shopTotal = computed(() => this.store.stock().reduce((sum, item) => sum + item.shop, 0));
   readonly lowStock = computed(() => this.store.stock().filter(item => item.warehouse + item.shop <= item.minimum * 2));
 
   readonly cards = computed(() => [
@@ -53,9 +47,7 @@ export class DashboardComponent {
     { title: 'Cash available', value: 'Rs2.1L', note: 'Cash in hand', icon: CreditCard, tone: 'purple' },
     { title: 'Bank balance', value: 'Rs8.7L', note: '4 accounts', icon: Banknote, tone: 'blue' },
     { title: 'Receivables', value: `Rs${this.compact(this.receivables())}`, note: `${this.store.customers().filter(c => c.balance > 0).length} customers`, icon: AlertTriangle, tone: 'red' },
-    { title: 'Total stock', value: `${this.stockTotal()} bori`, note: `${this.store.stock().length} products`, icon: Boxes, tone: 'green' },
-    { title: 'Godown stock', value: `${this.warehouseTotal()} bori`, note: 'Godown ka samaan', icon: Warehouse, tone: 'orange' },
-    { title: 'Dukan stock', value: `${this.shopTotal()} bori`, note: 'Dukan ka samaan', icon: Store, tone: 'blue' },
+    { title: 'Total stock', value: `${this.stockTotal()} items`, note: `${this.store.stock().length} khad/spray items`, icon: Boxes, tone: 'green' },
   ]);
 
   constructor(readonly store: ErpStoreService) {}

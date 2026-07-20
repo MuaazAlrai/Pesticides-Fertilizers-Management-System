@@ -4,13 +4,18 @@
       <h1 class="page-title">Party Khata</h1>
       <p>Har customer, supplier aur company ka sale/purchase khata.</p>
     </div>
-    <label class="party-select">Party
-      <select [ngModel]="selectedParty().key" (ngModelChange)="updateParty($event)">
-        @for(party of parties(); track party.key) {
-          <option [value]="party.key">{{ party.name }} - {{ partyTypeLabel(party.type) }}</option>
-        }
-      </select>
-    </label>
+    <div class="khata-tools">
+      <label class="party-select">Party
+        <select [ngModel]="selectedParty().key" (ngModelChange)="updateParty($event)">
+          @for(party of parties(); track party.key) {
+            <option [value]="party.key">{{ party.name }} - {{ partyTypeLabel(party.type) }}</option>
+          }
+        </select>
+      </label>
+      <label>From <input type="date" [ngModel]="fromDate()" (ngModelChange)="updateFromDate($event)" /></label>
+      <label>To <input type="date" [ngModel]="toDate()" (ngModelChange)="updateToDate($event)" /></label>
+      <button class="btn" type="button" (click)="clearDates()">All Dates</button>
+    </div>
   </div>
 
   @if(selectedParty()) {

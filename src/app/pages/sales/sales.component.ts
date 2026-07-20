@@ -1,5 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Download, Eye, MessageCircle, Pencil, Plus, Printer, RotateCcw, Save, Trash2, TrendingUp, WalletCards, X, LucideAngularModule } from 'lucide-angular';
 import { ErpStoreService, PaymentStatus, Sale, SaleInput, SaleLine, StockLocation } from '../../core/erp-store.service';
 
@@ -15,18 +16,21 @@ interface SaleLineDraft {
 
 @Component({
   selector: 'app-sales',
-  imports: [FormsModule, LucideAngularModule],
+  imports: [FormsModule, RouterLink, LucideAngularModule],
   templateUrl: './sales.component.html',
   styleUrl: './sales.component.css',
 })
 export class SalesComponent {
   readonly store = inject(ErpStoreService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   readonly icons = { Download, Eye, MessageCircle, Pencil, Plus, Printer, RotateCcw, Save, Trash2, TrendingUp, WalletCards, X };
   readonly search = signal('');
   readonly period = signal<SalesPeriod>('today');
   readonly fromDate = signal(this.todayIso());
   readonly toDate = signal(this.todayIso());
-  readonly formVisible = signal(true);
+  readonly formVisible = signal(false);
+  readonly formPage = signal(false);
   readonly profitHidden = signal(false);
   readonly editingInvoice = signal<string | null>(null);
   readonly viewingSale = signal<Sale | null>(null);
@@ -35,7 +39,7 @@ export class SalesComponent {
     date: this.todayIso(),
     customerId: 0,
     customer: '',
-    saleMan: 'Malik Ashraf',
+    saleMan: '',
     payType: 'cash' as PayType,
     receivedCash: 0,
   });
@@ -56,15 +60,42 @@ export class SalesComponent {
   readonly billProfit = computed(() => this.billTotal() - this.billCost());
   readonly balance = computed(() => Math.max(0, this.billTotal() - Number(this.saleForm().receivedCash || 0)));
 
+  constructor() {
+    this.route.data.subscribe(data => {
+      this.formPage.set(data['mode'] === 'form');
+      if (data['mode'] !== 'form') {
+        this.formVisible.set(false);
+        this.editingInvoice.set(null);
+        return;
+      }
+
+      const invoice = this.route.snapshot.paramMap.get('invoice');
+      if (invoice) {
+        const sale = this.store.sales().find(row => row.invoice === invoice);
+        if (sale) this.loadSaleForEdit(sale);
+        else {
+          this.message.set('Invoice nahi mili.');
+          this.startNewSale();
+        }
+      } else {
+        this.startNewSale();
+      }
+    });
+  }
+
   startNewSale(): void {
     this.editingInvoice.set(null);
     this.viewingSale.set(null);
-    this.saleForm.set({ date: this.todayIso(), customerId: 0, customer: '', saleMan: 'Malik Ashraf', payType: 'cash', receivedCash: 0 });
+    this.saleForm.set({ date: this.todayIso(), customerId: 0, customer: '', saleMan: '', payType: 'cash', receivedCash: 0 });
     this.lines.set([this.blankLine()]);
     this.formVisible.set(true);
   }
 
   editSale(sale: Sale): void {
+    void this.router.navigate(['/sales/edit', sale.invoice]);
+  }
+
+  loadSaleForEdit(sale: Sale): void {
     const customer = this.store.customers().find(row => row.name === sale.customer || row.id === sale.customerId);
     this.editingInvoice.set(sale.invoice);
     this.viewingSale.set(null);
@@ -72,7 +103,7 @@ export class SalesComponent {
       date: this.saleDate(sale),
       customerId: customer?.id ?? sale.customerId ?? 0,
       customer: sale.customer,
-      saleMan: sale.saleMan ?? 'Malik Ashraf',
+      saleMan: sale.saleMan ?? '',
       payType: sale.payType ?? this.payTypeFromPayment(sale.payment),
       receivedCash: sale.receivedCash ?? (this.isPaid(sale.payment) ? sale.amount : 0),
     });
@@ -105,7 +136,7 @@ export class SalesComponent {
       payment: this.paymentFromPayType(payType),
       payType,
       kind: this.payTypeLabel(payType),
-      saleMan: this.saleForm().saleMan.trim() || 'Malik Ashraf',
+      saleMan: this.saleForm().saleMan.trim(),
       itemId: saleLines[0].itemId,
       quantity: saleLines.reduce((sum, line) => sum + line.quantity, 0),
       source: saleLines[0].source,
@@ -129,6 +160,7 @@ export class SalesComponent {
     }
 
     this.startNewSale();
+    if (this.formPage()) void this.router.navigate(['/sales']);
   }
 
   deleteSale(sale: Sale): void {
@@ -268,7 +300,14 @@ export class SalesComponent {
 
   private defaultRate(itemId: number): number {
     const item = this.store.stock().find(row => row.id === Number(itemId));
-    return item ? Math.max(1, Math.round(((item.warehouse + item.shop) || 1) * 10)) : 0;
+    if (!item) return 0;
+    if (item.name.includes('DAP')) return 12500;
+    if (item.name.includes('Urea')) return 5600;
+    if (item.name.includes('Glyphosate')) return 1850;
+    if (item.name.includes('Lambda')) return 950;
+    if (item.name.includes('Zinc')) return 2200;
+    if (item.name.includes('Fungicide')) return 1450;
+    return Math.max(1, Math.round(((item.warehouse + item.shop) || 1) * 10));
   }
 
   private linesFromSale(sale: Sale): SaleLineDraft[] {

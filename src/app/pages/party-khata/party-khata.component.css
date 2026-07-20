@@ -1,5 +1,8 @@
 .khata-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 14px; }
 .khata-head p { margin: 4px 0 0; color: var(--muted); font-size: 13px; }
+.khata-tools { display: flex; align-items: end; justify-content: flex-start; gap: 10px; flex-wrap: wrap; }
+.khata-tools label { display: grid; gap: 6px; color: var(--muted); font-size: 12px; font-weight: 700; }
+.khata-tools input { height: 42px; border: 1px solid #ceddd4; border-radius: 8px; padding: 7px 10px; background: white; color: var(--ink); }
 .party-select { display: grid; gap: 6px; min-width: min(420px, 100%); color: var(--muted); font-size: 12px; font-weight: 700; }
 .party-select select { height: 42px; border: 1px solid #ceddd4; border-radius: 8px; padding: 7px 10px; background: white; color: var(--ink); font-weight: 800; }
 .selected-party { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; padding: 14px 16px; }
@@ -20,7 +23,7 @@ a.icon-btn { text-decoration: none; }
 
 @media (max-width: 900px) {
   .khata-head { display: block; }
-  .party-select { margin-top: 12px; }
+  .khata-tools { margin-top: 12px; }
   .khata-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 

@@ -36,6 +36,8 @@ export class PartyKhataComponent {
   readonly store = inject(ErpStoreService);
   readonly icons = { Building2, Eye, Pencil, ReceiptText, Trash2, Users, WalletCards };
   readonly selectedPartyKey = signal('');
+  readonly fromDate = signal('');
+  readonly toDate = signal('');
 
   readonly parties = computed<PartyOption[]>(() => {
     const map = new Map<string, PartyOption>();
@@ -66,7 +68,9 @@ export class PartyKhataComponent {
       ? this.store.purchases().filter(purchase => purchase.supplier === party.name).map(purchase => this.purchaseRow(purchase))
       : [];
 
-    return [...saleRows, ...purchaseRows].sort((a, b) => `${b.date} ${b.time}`.localeCompare(`${a.date} ${a.time}`));
+    return [...saleRows, ...purchaseRows]
+      .filter(row => this.matchesRange(row.date))
+      .sort((a, b) => `${b.date} ${b.time}`.localeCompare(`${a.date} ${a.time}`));
   });
 
   readonly total = computed(() => this.khataRows().reduce((sum, row) => sum + row.total, 0));
@@ -76,6 +80,19 @@ export class PartyKhataComponent {
 
   updateParty(value: string): void {
     this.selectedPartyKey.set(value);
+  }
+
+  updateFromDate(value: string): void {
+    this.fromDate.set(value);
+  }
+
+  updateToDate(value: string): void {
+    this.toDate.set(value);
+  }
+
+  clearDates(): void {
+    this.fromDate.set('');
+    this.toDate.set('');
   }
 
   deleteRow(row: KhataRow): void {
@@ -124,5 +141,11 @@ export class PartyKhataComponent {
 
   private partyKey(type: PartyType, name: string): string {
     return `${type}:${name.trim().toLowerCase()}`;
+  }
+
+  private matchesRange(date: string): boolean {
+    const from = this.fromDate();
+    const to = this.toDate();
+    return (!from || date >= from) && (!to || date <= to);
   }
 }

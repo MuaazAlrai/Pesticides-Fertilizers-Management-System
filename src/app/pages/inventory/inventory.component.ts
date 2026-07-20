@@ -1,7 +1,12 @@
-import { Component, computed, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { AlertTriangle, ArrowLeftRight, Boxes, Eye, PackagePlus, PackageX, Pencil, Save, Store, Trash2, Warehouse, X, LucideAngularModule } from 'lucide-angular';
+import { map } from 'rxjs';
 import { ErpStoreService, StockInput, StockItem, StockLocation } from '../../core/erp-store.service';
+
+type InventoryMode = StockLocation | 'all';
 
 @Component({
   selector: 'app-inventory',
@@ -10,6 +15,7 @@ import { ErpStoreService, StockInput, StockItem, StockLocation } from '../../cor
   styleUrl: './inventory.component.css',
 })
 export class InventoryComponent {
+  private readonly route = inject(ActivatedRoute);
   readonly icons = { AlertTriangle, ArrowLeftRight, Boxes, Eye, PackagePlus, PackageX, Pencil, Save, Store, Trash2, Warehouse, X };
   readonly selectedId = signal(1);
   readonly quantity = signal(0);
@@ -19,6 +25,7 @@ export class InventoryComponent {
   readonly modalMode = signal<'add' | 'edit' | 'view' | null>(null);
   readonly editingId = signal<number | null>(null);
   readonly form = signal<StockInput>({ name: '', category: '', warehouse: 0, shop: 0, minimum: 0, unit: '' });
+  readonly mode = toSignal(this.route.data.pipe(map(data => this.toMode(data['location']))), { initialValue: this.toMode(this.route.snapshot.data['location']) });
 
   readonly total = computed(() => this.store.stock().reduce((s, i) => s + i.warehouse + i.shop, 0));
   readonly shopTotal = computed(() => this.store.stock().reduce((s, i) => s + i.shop, 0));
@@ -26,6 +33,14 @@ export class InventoryComponent {
   readonly low = computed(() => this.store.stock().filter(i => i.warehouse + i.shop <= i.minimum * 2).length);
   readonly out = computed(() => this.store.stock().filter(i => i.warehouse + i.shop === 0).length);
   readonly selectedItem = computed(() => this.store.stock().find(i => i.id === this.selectedId()));
+  readonly visibleStock = computed(() => {
+    const mode = this.mode();
+    if (mode === 'shop') return this.store.stock().filter(item => item.shop > 0);
+    if (mode === 'warehouse') return this.store.stock().filter(item => item.warehouse > 0);
+    return this.store.stock();
+  });
+  readonly pageTitle = computed(() => this.mode() === 'shop' ? 'Dukan Stock' : this.mode() === 'warehouse' ? 'Godown Stock' : 'Inventory');
+  readonly detailTitle = computed(() => this.mode() === 'shop' ? 'Dukan mein para samaan' : this.mode() === 'warehouse' ? 'Godown mein para samaan' : 'Stock Detail');
 
   constructor(readonly store: ErpStoreService) {}
 
@@ -90,6 +105,18 @@ export class InventoryComponent {
 
   locationLabel(location: StockLocation | undefined): string {
     return location === 'warehouse' ? 'Godown' : 'Dukan';
+  }
+
+  currentLocationLabel(): string {
+    return this.mode() === 'warehouse' ? 'Godown' : 'Dukan';
+  }
+
+  locationQty(item: StockItem): number {
+    return this.mode() === 'warehouse' ? item.warehouse : item.shop;
+  }
+
+  private toMode(value: unknown): InventoryMode {
+    return value === 'shop' || value === 'warehouse' ? value : 'all';
   }
 
   private normalizedForm(): StockInput {

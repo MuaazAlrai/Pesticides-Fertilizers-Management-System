@@ -58,6 +58,7 @@ export interface Purchase {
   payment: PaymentStatus;
   payType?: 'cash' | 'credit' | 'partial';
   kind: string;
+  purchaseMan?: string;
   itemId?: number;
   itemName?: string;
   quantity?: number;
@@ -95,26 +96,28 @@ export type SaleInput = Omit<Sale, 'invoice' | 'time' | 'profit' | 'itemName'> &
 
 @Injectable({ providedIn: 'root' })
 export class ErpStoreService {
-  readonly customers = signal<Customer[]>(this.load('mat-customers', [
-    { id: 1, name: 'Muhammad Iqbal', mobile: '0300-1234567', city: 'Lahore', type: 'Wholesale', balance: 45000, status: 'active', lastDeal: '2 din pehle' },
-    { id: 2, name: 'Ahmed Ali', mobile: '0321-9876543', city: 'Faisalabad', type: 'Retail', balance: -8000, status: 'active', lastDeal: 'Aaj' },
-    { id: 3, name: 'Khalid Mehmood', mobile: '0312-5551234', city: 'Multan', type: 'Corporate', balance: 120000, status: 'inactive', lastDeal: '65 din pehle' },
-  ]));
+  readonly customers = signal<Customer[]>(this.normalizeCustomers(this.load('mat-customers', [
+    { id: 1, name: 'Mian Iqbal Kisan', mobile: '0300-1234567', city: 'Lahore', type: 'Farmer', balance: 45000, status: 'active', lastDeal: '2 din pehle' },
+    { id: 2, name: 'Ahmed Agro Farm', mobile: '0321-9876543', city: 'Faisalabad', type: 'Dealer', balance: -8000, status: 'active', lastDeal: 'Aaj' },
+    { id: 3, name: 'Khalid Zarai Markaz', mobile: '0312-5551234', city: 'Multan', type: 'Retailer', balance: 120000, status: 'inactive', lastDeal: '65 din pehle' },
+  ])));
 
-  readonly sales = signal<Sale[]>(this.load('mat-sales', [
-    { invoice: 'INV-0541', customer: 'Muhammad Iqbal', customerId: 1, time: 'Aaj 14:30', date: this.todayIso(), amount: 28500, profit: 3420, payment: 'paid', payType: 'credit', kind: 'Udhar', saleMan: 'Malik Ashraf', itemId: 1, itemName: 'Gandum (50 kilo bori)', quantity: 5, source: 'shop', receivedCash: 0, balance: 28500 },
-    { invoice: 'INV-0540', customer: 'Ahmed Ali', customerId: 2, time: 'Aaj 11:15', date: this.todayIso(), amount: 12300, profit: 1476, payment: 'paid', payType: 'cash', kind: 'Naqad', saleMan: 'Malik Ashraf', itemId: 2, itemName: 'Basmati Chawal', quantity: 2, source: 'warehouse', receivedCash: 12300, balance: 0 },
-  ]));
+  readonly sales = signal<Sale[]>(this.normalizeSales(this.load('mat-sales', [
+    { invoice: 'INV-0541', customer: 'Mian Iqbal Kisan', customerId: 1, time: 'Aaj 14:30', date: this.todayIso(), amount: 28500, profit: 3420, payment: 'paid', payType: 'credit', kind: 'Udhar', saleMan: '', itemId: 1, itemName: 'DAP Khad 50kg', quantity: 5, source: 'shop', receivedCash: 0, balance: 28500 },
+    { invoice: 'INV-0540', customer: 'Ahmed Agro Farm', customerId: 2, time: 'Aaj 11:15', date: this.todayIso(), amount: 12300, profit: 1476, payment: 'paid', payType: 'cash', kind: 'Naqad', saleMan: '', itemId: 2, itemName: 'Urea Khad 50kg', quantity: 2, source: 'warehouse', receivedCash: 12300, balance: 0 },
+  ])));
 
-  readonly stock = signal<StockItem[]>(this.load('mat-stock', [
-    { id: 1, name: 'Gandum (50 kilo bori)', category: 'Anaaj', warehouse: 450, shop: 120, minimum: 50, unit: 'Bori' },
-    { id: 2, name: 'Basmati Chawal', category: 'Anaaj', warehouse: 320, shop: 80, minimum: 30, unit: 'Bori' },
-    { id: 3, name: 'Safed Cheeni', category: 'Kiryana', warehouse: 75, shop: 24, minimum: 25, unit: 'Bori' },
-    { id: 4, name: 'Daal Chana', category: 'Daalain', warehouse: 12, shop: 6, minimum: 20, unit: 'Thela' },
-  ]));
+  readonly stock = signal<StockItem[]>(this.normalizeStock(this.load('mat-stock', [
+    { id: 1, name: 'DAP Khad 50kg', category: 'Khad', warehouse: 450, shop: 120, minimum: 50, unit: 'Bag' },
+    { id: 2, name: 'Urea Khad 50kg', category: 'Khad', warehouse: 320, shop: 80, minimum: 30, unit: 'Bag' },
+    { id: 3, name: 'Glyphosate Weed Killer 1L', category: 'Spray / Herbicide', warehouse: 75, shop: 24, minimum: 25, unit: 'Bottle' },
+    { id: 4, name: 'Lambda Pesticide 250ml', category: 'Pesticide', warehouse: 60, shop: 18, minimum: 20, unit: 'Bottle' },
+    { id: 5, name: 'Zinc Sulphate 33%', category: 'Micronutrient', warehouse: 95, shop: 30, minimum: 25, unit: 'Pack' },
+    { id: 6, name: 'Fungicide Spray 500ml', category: 'Fungicide', warehouse: 70, shop: 22, minimum: 20, unit: 'Bottle' },
+  ])));
 
   readonly movements = signal<StockMovement[]>(this.load('mat-stock-movements', []));
-  readonly purchases = signal<Purchase[]>(this.load('mat-purchases', []));
+  readonly purchases = signal<Purchase[]>(this.normalizePurchases(this.load('mat-purchases', [])));
 
   addCustomer(customer: Omit<Customer, 'id'>): void {
     const next = [...this.customers(), { ...customer, id: Date.now() }];
@@ -354,6 +357,65 @@ export class ErpStoreService {
 
   private todayIso(): string {
     return new Date().toISOString().slice(0, 10);
+  }
+
+  private normalizeCustomers(customers: Customer[]): Customer[] {
+    const names: Record<string, Partial<Customer>> = {
+      'Muhammad Iqbal': { name: 'Mian Iqbal Kisan', type: 'Farmer' },
+      'Ahmed Ali': { name: 'Ahmed Agro Farm', type: 'Dealer' },
+      'Khalid Mehmood': { name: 'Khalid Zarai Markaz', type: 'Retailer' },
+    };
+    return customers.map(customer => ({ ...customer, ...(names[customer.name] ?? {}) }));
+  }
+
+  private normalizeStock(stock: StockItem[]): StockItem[] {
+    const products: Record<string, StockItem> = {
+      'Gandum (50 kilo bori)': { id: 1, name: 'DAP Khad 50kg', category: 'Khad', warehouse: 450, shop: 120, minimum: 50, unit: 'Bag' },
+      'Basmati Chawal': { id: 2, name: 'Urea Khad 50kg', category: 'Khad', warehouse: 320, shop: 80, minimum: 30, unit: 'Bag' },
+      'Safed Cheeni': { id: 3, name: 'Glyphosate Weed Killer 1L', category: 'Spray / Herbicide', warehouse: 75, shop: 24, minimum: 25, unit: 'Bottle' },
+      'Daal Chana': { id: 4, name: 'Lambda Pesticide 250ml', category: 'Pesticide', warehouse: 60, shop: 18, minimum: 20, unit: 'Bottle' },
+    };
+    return stock.map(item => {
+      const product = products[item.name];
+      return product ? { ...product, warehouse: item.warehouse, shop: item.shop, minimum: item.minimum } : item;
+    });
+  }
+
+  private normalizeSales(sales: Sale[]): Sale[] {
+    const customers: Record<string, string> = {
+      'Muhammad Iqbal': 'Mian Iqbal Kisan',
+      'Ahmed Ali': 'Ahmed Agro Farm',
+      'Khalid Mehmood': 'Khalid Zarai Markaz',
+    };
+    return sales.map(sale => ({
+      ...sale,
+      customer: customers[sale.customer] ?? sale.customer,
+      itemName: this.agriProductName(sale.itemName),
+      lines: sale.lines?.map(line => ({ ...line, itemName: this.agriProductName(line.itemName) ?? line.itemName, unit: this.agriUnit(line.unit) })),
+    }));
+  }
+
+  private normalizePurchases(purchases: Purchase[]): Purchase[] {
+    return purchases.map(purchase => ({
+      ...purchase,
+      itemName: this.agriProductName(purchase.itemName),
+      lines: purchase.lines?.map(line => ({ ...line, itemName: this.agriProductName(line.itemName) ?? line.itemName, unit: this.agriUnit(line.unit) })),
+    }));
+  }
+
+  private agriProductName(name: string | undefined): string | undefined {
+    const products: Record<string, string> = {
+      'Gandum (50 kilo bori)': 'DAP Khad 50kg',
+      'Basmati Chawal': 'Urea Khad 50kg',
+      'Safed Cheeni': 'Glyphosate Weed Killer 1L',
+      'Daal Chana': 'Lambda Pesticide 250ml',
+    };
+    return name ? products[name] ?? name : name;
+  }
+
+  private agriUnit(unit: string): string {
+    const units: Record<string, string> = { Bori: 'Bag', Thela: 'Bottle' };
+    return units[unit] ?? unit;
   }
 
   private load<T>(key: string, fallback: T): T {

@@ -27,6 +27,14 @@ type CustomerDailyRow = {
   advance: number;
 };
 
+type SupplierDailyRow = {
+  name: string;
+  bills: number;
+  total: number;
+  cash: number;
+  due: number;
+};
+
 @Component({
   selector: 'app-roznamcha',
   imports: [FormsModule, LucideAngularModule],
@@ -69,6 +77,19 @@ export class RoznamchaComponent {
       row.due += Number(sale.balance || 0);
       row.advance += Math.max(0, cash - sale.amount);
       map.set(sale.customer, row);
+    }
+    return [...map.values()].sort((a, b) => b.total - a.total);
+  });
+
+  readonly supplierRows = computed<SupplierDailyRow[]>(() => {
+    const map = new Map<string, SupplierDailyRow>();
+    for (const purchase of this.filteredPurchases()) {
+      const row = map.get(purchase.supplier) ?? { name: purchase.supplier, bills: 0, total: 0, cash: 0, due: 0 };
+      row.bills += 1;
+      row.total += purchase.amount;
+      row.cash += Number(purchase.paidCash || 0);
+      row.due += Number(purchase.balance || 0);
+      map.set(purchase.supplier, row);
     }
     return [...map.values()].sort((a, b) => b.total - a.total);
   });
