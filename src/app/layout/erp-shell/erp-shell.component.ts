@@ -1,6 +1,7 @@
 import { Component, signal } from '@angular/core';
-import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
-import { Bell, Boxes, Building2, ChevronDown, CircleDollarSign, LayoutDashboard, Menu, Package, ReceiptText, Search, Settings, ShoppingCart, Store, Truck, Users, Warehouse, X, LucideAngularModule } from 'lucide-angular';
+import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { Building2, CircleDollarSign, LayoutDashboard, LogOut, Menu, Package, PanelRightClose, PanelRightOpen, ReceiptText, Settings, ShoppingCart, Store, Truck, Users, Warehouse, X, LucideAngularModule } from 'lucide-angular';
+import { AuthService } from '../../core/auth.service';
 
 @Component({
   selector: 'app-erp-shell',
@@ -10,20 +11,31 @@ import { Bell, Boxes, Building2, ChevronDown, CircleDollarSign, LayoutDashboard,
 })
 export class ErpShellComponent {
   readonly sidebarOpen = signal(false);
-  readonly icons = { Bell, Boxes, Building2, ChevronDown, CircleDollarSign, LayoutDashboard, Menu, Package, ReceiptText, Search, Settings, ShoppingCart, Store, Truck, Users, Warehouse, X };
+  readonly sidebarCollapsed = signal(localStorage.getItem('mat-sidebar-collapsed') === 'true');
+  readonly icons = { Building2, CircleDollarSign, LayoutDashboard, LogOut, Menu, Package, PanelRightClose, PanelRightOpen, ReceiptText, Settings, ShoppingCart, Store, Truck, Users, Warehouse, X };
   readonly links = [
-    { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
-    { label: 'Customers', path: '/customers', icon: Users },
-    { label: 'Khad / Spray', path: '/inventory', icon: Package },
-    { label: 'Sales', path: '/sales', icon: CircleDollarSign },
-    { label: 'Purchase', path: '/purchase', icon: ShoppingCart },
-    { label: 'Roznamcha', path: '/roznamcha', icon: ReceiptText },
-    { label: 'Party Khata', path: '/party-khata', icon: Building2 },
-    // { label: 'Inventory', path: '/inventory', icon: Boxes },
-    { label: 'Dukan', path: '/dukan', icon: Store },
-    { label: 'Godown', path: '/godown', icon: Warehouse },
-    { label: 'Suppliers', path: '/customers', icon: Truck },
-    // { label: 'Accounts', path: '/party-khata', icon: ReceiptText },
+    { label: 'ڈیش بورڈ', path: '/dashboard', icon: LayoutDashboard },
+    { label: 'کسٹمرز', path: '/customers', icon: Users },
+    { label: 'اسٹاک', path: '/inventory', icon: Package },
+    { label: 'سیلز', path: '/sales', icon: CircleDollarSign },
+    { label: 'خریداری', path: '/purchase', icon: ShoppingCart },
+    { label: 'روزنامچہ', path: '/roznamcha', icon: ReceiptText },
+    { label: 'پارٹی کھاتہ', path: '/party-khata', icon: Building2 },
+    { label: 'دکان', path: '/dukan', icon: Store },
+    { label: 'گودام', path: '/godown', icon: Warehouse },
+    { label: 'سپلائرز', path: '/customers', icon: Truck },
   ];
+  constructor(readonly auth: AuthService, private readonly router: Router) {}
   closeSidebar(): void { this.sidebarOpen.set(false); }
+  toggleSidebarSplit(): void {
+    this.sidebarCollapsed.update(value => {
+      const next = !value;
+      localStorage.setItem('mat-sidebar-collapsed', String(next));
+      return next;
+    });
+  }
+  async logout(): Promise<void> {
+    await this.auth.logout();
+    void this.router.navigate(['/login']);
+  }
 }

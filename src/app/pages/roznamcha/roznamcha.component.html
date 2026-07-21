@@ -1,42 +1,42 @@
 <section class="page">
   <div class="page-head roz-head">
     <div>
-      <h1 class="page-title">Roznamcha</h1>
-      <p>Sales, purchase, naqad, baqaya aur profit detail: {{ rangeLabel() }}</p>
+      <h1 class="page-title">روزنامچہ</h1>
+      <p>سیلز، خریداری، وصولی، بقایہ اور منافع تفصیل: {{ rangeLabel() }}</p>
     </div>
     <div class="date-tools">
       <div class="period-tabs">
-        <button class="period" type="button" [class.active]="period() === 'today'" (click)="setPeriod('today')">Today</button>
-        <button class="period" type="button" [class.active]="period() === 'month'" (click)="setPeriod('month')">Monthly</button>
-        <button class="period" type="button" [class.active]="period() === 'year'" (click)="setPeriod('year')">Yearly</button>
+        <button class="period" type="button" [class.active]="period() === 'today'" (click)="setPeriod('today')">آج</button>
+        <button class="period" type="button" [class.active]="period() === 'month'" (click)="setPeriod('month')">ماہانہ</button>
+        <button class="period" type="button" [class.active]="period() === 'year'" (click)="setPeriod('year')">سالانہ</button>
       </div>
-      <label>From <input type="date" [ngModel]="fromDate()" (ngModelChange)="updateFromDate($event)" /></label>
-      <label>To <input type="date" [ngModel]="toDate()" (ngModelChange)="updateToDate($event)" /></label>
+      <label>سے <input type="date" [ngModel]="fromDate()" (ngModelChange)="updateFromDate($event)" /></label>
+      <label>تک <input type="date" [ngModel]="toDate()" (ngModelChange)="updateToDate($event)" /></label>
     </div>
   </div>
 
   <div class="summary-grid roz-summary">
-    <article class="panel summary-card"><div><strong>Rs{{ salesTotal().toLocaleString() }}</strong><span>Total sales</span></div><span class="summary-icon"><lucide-icon [img]="icons.TrendingUp" [size]="21" /></span></article>
-    <article class="panel summary-card"><div><strong>Rs{{ salesCash().toLocaleString() }}</strong><span>Sales naqad</span></div><span class="summary-icon green"><lucide-icon [img]="icons.Banknote" [size]="21" /></span></article>
-    <article class="panel summary-card"><div><strong>Rs{{ salesDue().toLocaleString() }}</strong><span>Sales baqaya</span></div><span class="summary-icon red"><lucide-icon [img]="icons.WalletCards" [size]="21" /></span></article>
-    <article class="panel summary-card"><div><strong>Rs{{ profit().toLocaleString() }}</strong><span>Profit</span></div><span class="summary-icon purple"><lucide-icon [img]="icons.CircleDollarSign" [size]="21" /></span></article>
-    <article class="panel summary-card"><div><strong>Rs{{ purchaseTotal().toLocaleString() }}</strong><span>Total purchase</span></div><span class="summary-icon orange"><lucide-icon [img]="icons.ShoppingCart" [size]="21" /></span></article>
-    <article class="panel summary-card"><div><strong>Rs{{ purchaseCash().toLocaleString() }}</strong><span>Purchase naqad</span></div><span class="summary-icon blue"><lucide-icon [img]="icons.ReceiptText" [size]="21" /></span></article>
-    <article class="panel summary-card"><div><strong>Rs{{ purchaseDue().toLocaleString() }}</strong><span>Purchase baqaya</span></div><span class="summary-icon red"><lucide-icon [img]="icons.WalletCards" [size]="21" /></span></article>
-    <article class="panel summary-card"><div><strong>Rs{{ netCash().toLocaleString() }}</strong><span>Net cash</span></div><span class="summary-icon green"><lucide-icon [img]="icons.Banknote" [size]="21" /></span></article>
+    <article class="panel summary-card"><div><strong>Rs{{ salesTotal().toLocaleString() }}</strong><span>کل سیلز</span></div><span class="summary-icon"><lucide-icon [img]="icons.TrendingUp" [size]="21" /></span></article>
+    <article class="panel summary-card"><div><strong>Rs{{ salesCash().toLocaleString() }}</strong><span>سیلز وصولی</span></div><span class="summary-icon green"><lucide-icon [img]="icons.Banknote" [size]="21" /></span></article>
+    <article class="panel summary-card"><div><strong>Rs{{ salesDue().toLocaleString() }}</strong><span>سیلز بقایہ</span></div><span class="summary-icon red"><lucide-icon [img]="icons.WalletCards" [size]="21" /></span></article>
+    <article class="panel summary-card"><div><strong>Rs{{ profit().toLocaleString() }}</strong><span>منافع</span></div><span class="summary-icon purple"><lucide-icon [img]="icons.CircleDollarSign" [size]="21" /></span></article>
+    <article class="panel summary-card"><div><strong>Rs{{ purchaseTotal().toLocaleString() }}</strong><span>کل خریداری</span></div><span class="summary-icon orange"><lucide-icon [img]="icons.ShoppingCart" [size]="21" /></span></article>
+    <article class="panel summary-card"><div><strong>Rs{{ purchaseCash().toLocaleString() }}</strong><span>خریداری ادائیگی</span></div><span class="summary-icon blue"><lucide-icon [img]="icons.ReceiptText" [size]="21" /></span></article>
+    <article class="panel summary-card"><div><strong>Rs{{ purchaseDue().toLocaleString() }}</strong><span>خریداری بقایہ</span></div><span class="summary-icon red"><lucide-icon [img]="icons.WalletCards" [size]="21" /></span></article>
+    <article class="panel summary-card"><div><strong>Rs{{ netCash().toLocaleString() }}</strong><span>نیٹ وصولی</span></div><span class="summary-icon green"><lucide-icon [img]="icons.Banknote" [size]="21" /></span></article>
   </div>
 
   <article class="panel data-panel">
-    <div class="panel-heading"><h2>Entry detail</h2></div>
+    <div class="panel-heading"><h2>اندراج تفصیل</h2></div>
     <div class="table-scroll">
       <table>
-        <thead><tr><th>Date</th><th>Time</th><th>Type</th><th>Party</th><th>Invoice</th><th>Detail</th><th>Total</th><th>Naqad</th><th>Baqaya</th><th>Profit</th></tr></thead>
+        <thead><tr><th>تاریخ</th><th>وقت</th><th>قسم</th><th>پارٹی</th><th>انوائس</th><th>تفصیل</th><th>کل</th><th>وصولی</th><th>بقایہ</th><th>منافع</th></tr></thead>
         <tbody>
           @for(row of rows(); track row.type + row.invoice) {
             <tr>
               <td>{{ row.date }}</td>
               <td>{{ row.time }}</td>
-              <td><span class="badge" [class.sale]="row.type === 'Sale'" [class.purchase]="row.type === 'Purchase'">{{ row.type }}</span></td>
+              <td><span class="badge" [class.sale]="row.type === 'Sale'" [class.purchase]="row.type === 'Purchase'">{{ row.type === 'Sale' ? 'سیل' : 'خریداری' }}</span></td>
               <td><strong>{{ row.party }}</strong></td>
               <td class="money">{{ row.invoice }}</td>
               <td>{{ row.details }}</td>
@@ -46,7 +46,7 @@
               <td class="money profit">{{ row.profit ? 'Rs' + row.profit.toLocaleString() : '-' }}</td>
             </tr>
           } @empty {
-            <tr><td colspan="10" class="empty">Is range ka roznamcha abhi empty hai.</td></tr>
+            <tr><td colspan="10" class="empty">اس رینج کا روزنامچہ ابھی خالی ہے۔</td></tr>
           }
         </tbody>
       </table>
@@ -54,10 +54,10 @@
   </article>
 
   <article class="panel data-panel customer-daily">
-    <div class="panel-heading"><h2>Customer wise sales</h2></div>
+    <div class="panel-heading"><h2>کسٹمر کے حساب سے سیلز</h2></div>
     <div class="table-scroll">
       <table>
-        <thead><tr><th>Customer</th><th>Invoices</th><th>Total sale</th><th>Naqad diya</th><th>Baqaya</th><th>Advance</th></tr></thead>
+        <thead><tr><th>کسٹمر</th><th>انوائسز</th><th>کل سیل</th><th>وصولی</th><th>بقایہ</th><th>ایڈوانس</th></tr></thead>
         <tbody>
           @for(row of customerRows(); track row.name) {
             <tr>
@@ -69,7 +69,7 @@
               <td class="money advance">Rs{{ row.advance.toLocaleString() }}</td>
             </tr>
           } @empty {
-            <tr><td colspan="6" class="empty">Is date customer sale record nahi mila.</td></tr>
+            <tr><td colspan="6" class="empty">اس تاریخ میں کسٹمر سیل ریکارڈ نہیں ملا۔</td></tr>
           }
         </tbody>
       </table>
@@ -77,10 +77,10 @@
   </article>
 
   <article class="panel data-panel customer-daily">
-    <div class="panel-heading"><h2>Supplier wise purchase</h2></div>
+    <div class="panel-heading"><h2>سپلائر کے حساب سے خریداری</h2></div>
     <div class="table-scroll">
       <table>
-        <thead><tr><th>Supplier</th><th>Bills</th><th>Total purchase</th><th>Naqad diya</th><th>Baqaya</th></tr></thead>
+        <thead><tr><th>سپلائر</th><th>بل</th><th>کل خریداری</th><th>ادائیگی</th><th>بقایہ</th></tr></thead>
         <tbody>
           @for(row of supplierRows(); track row.name) {
             <tr>
@@ -91,7 +91,7 @@
               <td class="money due">Rs{{ row.due.toLocaleString() }}</td>
             </tr>
           } @empty {
-            <tr><td colspan="5" class="empty">Is date purchase record nahi mila.</td></tr>
+            <tr><td colspan="5" class="empty">اس تاریخ میں خریداری ریکارڈ نہیں ملا۔</td></tr>
           }
         </tbody>
       </table>

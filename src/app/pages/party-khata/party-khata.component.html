@@ -1,20 +1,23 @@
 <section class="page">
   <div class="page-head khata-head">
     <div>
-      <h1 class="page-title">Party Khata</h1>
-      <p>Har customer, supplier aur company ka sale/purchase khata.</p>
+      <h1 class="page-title">پارٹی کھاتہ</h1>
+      <p>ہر کسٹمر، سپلائر اور کمپنی کا سیل/خریداری کھاتہ۔</p>
     </div>
     <div class="khata-tools">
-      <label class="party-select">Party
+      <label class="party-select">پارٹی
         <select [ngModel]="selectedParty().key" (ngModelChange)="updateParty($event)">
           @for(party of parties(); track party.key) {
             <option [value]="party.key">{{ party.name }} - {{ partyTypeLabel(party.type) }}</option>
           }
         </select>
       </label>
-      <label>From <input type="date" [ngModel]="fromDate()" (ngModelChange)="updateFromDate($event)" /></label>
-      <label>To <input type="date" [ngModel]="toDate()" (ngModelChange)="updateToDate($event)" /></label>
-      <button class="btn" type="button" (click)="clearDates()">All Dates</button>
+      <label>سے <input type="date" [ngModel]="fromDate()" (ngModelChange)="updateFromDate($event)" /></label>
+      <label>تک <input type="date" [ngModel]="toDate()" (ngModelChange)="updateToDate($event)" /></label>
+      <button class="btn" type="button" (click)="clearDates()">تمام تاریخیں</button>
+      <a class="btn btn-success" [href]="partyWhatsAppUrl()" target="_blank" rel="noopener">
+        <lucide-icon [img]="icons.MessageCircle" [size]="16" /> WhatsApp
+      </a>
     </div>
   </div>
 
@@ -31,23 +34,23 @@
   }
 
   <div class="summary-grid khata-summary">
-    <article class="panel summary-card"><div><strong>Rs{{ total().toLocaleString() }}</strong><span>Total business</span></div><span class="summary-icon"><lucide-icon [img]="icons.ReceiptText" [size]="21" /></span></article>
-    <article class="panel summary-card"><div><strong>Rs{{ cash().toLocaleString() }}</strong><span>Naqad diya/liya</span></div><span class="summary-icon green"><lucide-icon [img]="icons.WalletCards" [size]="21" /></span></article>
-    <article class="panel summary-card"><div><strong>Rs{{ balance().toLocaleString() }}</strong><span>Baqaya</span></div><span class="summary-icon red"><lucide-icon [img]="icons.WalletCards" [size]="21" /></span></article>
-    <article class="panel summary-card"><div><strong>Rs{{ advance().toLocaleString() }}</strong><span>Advance</span></div><span class="summary-icon blue"><lucide-icon [img]="icons.WalletCards" [size]="21" /></span></article>
+    <article class="panel summary-card"><div><strong>Rs{{ total().toLocaleString() }}</strong><span>کل کاروبار</span></div><span class="summary-icon"><lucide-icon [img]="icons.ReceiptText" [size]="21" /></span></article>
+    <article class="panel summary-card"><div><strong>Rs{{ cash().toLocaleString() }}</strong><span>وصولی دی/لی</span></div><span class="summary-icon green"><lucide-icon [img]="icons.WalletCards" [size]="21" /></span></article>
+    <article class="panel summary-card"><div><strong>Rs{{ balance().toLocaleString() }}</strong><span>بقایہ</span></div><span class="summary-icon red"><lucide-icon [img]="icons.WalletCards" [size]="21" /></span></article>
+    <article class="panel summary-card"><div><strong>Rs{{ advance().toLocaleString() }}</strong><span>ایڈوانس</span></div><span class="summary-icon blue"><lucide-icon [img]="icons.WalletCards" [size]="21" /></span></article>
   </div>
 
   <article class="panel data-panel">
-    <div class="panel-heading"><h2>Khata detail</h2></div>
+    <div class="panel-heading"><h2>کھاتہ تفصیل</h2></div>
     <div class="table-scroll">
       <table>
-        <thead><tr><th>Date</th><th>Time</th><th>Type</th><th>Invoice</th><th>Item</th><th>Total</th><th>Naqad</th><th>Baqaya</th><th>Advance</th><th>Actions</th></tr></thead>
+        <thead><tr><th>تاریخ</th><th>وقت</th><th>قسم</th><th>انوائس</th><th>آئٹم</th><th>کل</th><th>وصولی</th><th>بقایہ</th><th>ایڈوانس</th><th>عمل</th></tr></thead>
         <tbody>
           @for(row of khataRows(); track row.type + row.invoice) {
             <tr>
               <td>{{ row.date }}</td>
               <td>{{ row.time }}</td>
-              <td><span class="badge" [class.sale]="row.type === 'Sale'" [class.purchase]="row.type === 'Purchase'">{{ row.type }}</span></td>
+              <td><span class="badge" [class.sale]="row.type === 'Sale'" [class.purchase]="row.type === 'Purchase'">{{ row.type === 'Sale' ? 'سیل' : 'خریداری' }}</span></td>
               <td class="money">{{ row.invoice }}</td>
               <td><strong>{{ row.item }}</strong></td>
               <td class="money">Rs{{ row.total.toLocaleString() }}</td>
@@ -63,7 +66,7 @@
               </td>
             </tr>
           } @empty {
-            <tr><td colspan="10" class="empty">Is party ka khata abhi empty hai.</td></tr>
+            <tr><td colspan="10" class="empty">اس پارٹی کا کھاتہ ابھی خالی ہے۔</td></tr>
           }
         </tbody>
       </table>

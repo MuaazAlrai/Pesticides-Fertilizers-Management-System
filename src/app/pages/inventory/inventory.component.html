@@ -2,42 +2,42 @@
   <div class="page-head">
     <h1 class="page-title">{{ pageTitle() }}</h1>
     @if(mode() === 'all') {
-      <button class="btn btn-primary" (click)="openAdd()"><lucide-icon [img]="icons.PackagePlus" [size]="17" /> Add Item</button>
+      <button class="btn btn-primary" (click)="openAdd()"><lucide-icon [img]="icons.PackagePlus" [size]="17" /> نیا آئٹم</button>
     }
   </div>
 
   <div class="summary-grid inventory-summary">
-    <article class="panel summary-card"><div><strong>{{ total().toLocaleString() }}</strong><span>Total stock</span></div><span class="summary-icon"><lucide-icon [img]="icons.Boxes" [size]="22" /></span></article>
-    <article class="panel summary-card"><div><strong>{{ warehouseTotal().toLocaleString() }}</strong><span>Godown stock</span></div><span class="summary-icon warning"><lucide-icon [img]="icons.Warehouse" [size]="22" /></span></article>
-    <article class="panel summary-card"><div><strong>{{ shopTotal().toLocaleString() }}</strong><span>Dukan stock</span></div><span class="summary-icon"><lucide-icon [img]="icons.Store" [size]="22" /></span></article>
-    <article class="panel summary-card"><div><strong>{{ low() }} / {{ out() }}</strong><span>Low / out products</span></div><span class="summary-icon danger"><lucide-icon [img]="icons.PackageX" [size]="22" /></span></article>
+    <article class="panel summary-card"><div><strong>{{ total().toLocaleString() }}</strong><span>کل اسٹاک</span></div><span class="summary-icon"><lucide-icon [img]="icons.Boxes" [size]="22" /></span></article>
+    <article class="panel summary-card"><div><strong>{{ warehouseTotal().toLocaleString() }}</strong><span>گودام اسٹاک</span></div><span class="summary-icon warning"><lucide-icon [img]="icons.Warehouse" [size]="22" /></span></article>
+    <article class="panel summary-card"><div><strong>{{ shopTotal().toLocaleString() }}</strong><span>دکان اسٹاک</span></div><span class="summary-icon"><lucide-icon [img]="icons.Store" [size]="22" /></span></article>
+    <article class="panel summary-card"><div><strong>{{ low() }} / {{ out() }}</strong><span>کم / ختم آئٹمز</span></div><span class="summary-icon danger"><lucide-icon [img]="icons.PackageX" [size]="22" /></span></article>
   </div>
 
   @if(mode() === 'all') {
   <article class="panel transfer-panel">
-    <div class="panel-heading"><h2>Dukan / Godown Transfer</h2></div>
+    <div class="panel-heading"><h2>دکان / گودام منتقلی</h2></div>
     <div class="transfer-form">
-      <label>Khad / Spray Item
+      <label>کھاد / سپرے آئٹم
         <select class="select" [ngModel]="selectedId()" (ngModelChange)="selectedId.set(+$event)">
           @for(item of store.stock(); track item.id) { <option [value]="item.id">{{ item.name }}</option> }
         </select>
       </label>
-      <label>From
+      <label>کہاں سے
         <select class="select" [ngModel]="from()" (ngModelChange)="setFrom($event)">
-          <option value="warehouse">Godown</option>
-          <option value="shop">Dukan</option>
+          <option value="warehouse">گودام</option>
+          <option value="shop">دکان</option>
         </select>
       </label>
-      <label>To
+      <label>کہاں تک
         <input class="search readonly" [value]="locationLabel(to())" readonly />
       </label>
-      <label>Quantity
+      <label>تعداد
         <input class="search" type="number" min="1" [ngModel]="quantity()" (ngModelChange)="quantity.set(+$event)" placeholder="0" />
       </label>
-      <button class="btn btn-primary" (click)="transfer()"><lucide-icon [img]="icons.ArrowLeftRight" [size]="16" /> Transfer</button>
+      <button class="btn btn-primary" (click)="transfer()"><lucide-icon [img]="icons.ArrowLeftRight" [size]="16" /> منتقل کریں</button>
     </div>
     @if(selectedItem()) {
-      <p class="stock-note">Selected: Godown {{ selectedItem()?.warehouse }} / Dukan {{ selectedItem()?.shop }} {{ selectedItem()?.unit }}</p>
+      <p class="stock-note">منتخب: گودام {{ selectedItem()?.warehouse }} / دکان {{ selectedItem()?.shop }} {{ selectedItem()?.unit }}</p>
     }
     @if(message()) { <p class="message" [class.error]="message().includes('ghalat') || message().includes('zaroori')">{{ message() }}</p> }
   </article>
@@ -49,9 +49,9 @@
       <table>
         <thead>
           @if(mode() === 'all') {
-          <tr><th>Item</th><th>Category</th><th>Godown</th><th>Dukan</th><th>Total</th><th>Minimum</th><th>Status</th><th>Actions</th></tr>
+          <tr><th>آئٹم</th><th>قسم</th><th>گودام</th><th>دکان</th><th>کل</th><th>کم از کم</th><th>حالت</th><th>عمل</th></tr>
           } @else {
-            <tr><th>Item</th><th>Category</th><th>{{ currentLocationLabel() }}</th><th>Total stock</th><th>Unit</th><th>Status</th><th>Actions</th></tr>
+            <tr><th>آئٹم</th><th>قسم</th><th>{{ currentLocationLabel() }}</th><th>کل اسٹاک</th><th>یونٹ</th><th>حالت</th><th>عمل</th></tr>
           }
         </thead>
         <tbody>
@@ -69,7 +69,7 @@
                 <td class="money">{{ item.warehouse + item.shop }}</td>
                 <td>{{ item.unit }}</td>
               }
-              <td><span class="badge" [class.badge-success]="item.warehouse + item.shop > item.minimum * 2" [class.badge-warning]="item.warehouse + item.shop <= item.minimum * 2 && item.warehouse + item.shop > 0" [class.badge-danger]="item.warehouse + item.shop === 0">{{ item.warehouse + item.shop === 0 ? 'Out' : item.warehouse + item.shop <= item.minimum * 2 ? 'Low' : 'Available' }}</span></td>
+              <td><span class="badge" [class.badge-success]="item.warehouse + item.shop > item.minimum * 2" [class.badge-warning]="item.warehouse + item.shop <= item.minimum * 2 && item.warehouse + item.shop > 0" [class.badge-danger]="item.warehouse + item.shop === 0">{{ item.warehouse + item.shop === 0 ? 'ختم' : item.warehouse + item.shop <= item.minimum * 2 ? 'کم' : 'دستیاب' }}</span></td>
               <td><div class="icon-actions">
                 <button class="icon-btn" title="View" (click)="openView(item)"><lucide-icon [img]="icons.Eye" [size]="14" /></button>
                 <button class="icon-btn edit" title="Edit" (click)="openEdit(item)"><lucide-icon [img]="icons.Pencil" [size]="14" /></button>
@@ -86,10 +86,10 @@
 
   @if(mode() === 'all') {
   <article class="panel data-panel movement-table">
-    <div class="panel-heading"><h2>Transfer History</h2></div>
+    <div class="panel-heading"><h2>منتقلی ریکارڈ</h2></div>
     <div class="table-scroll">
       <table>
-        <thead><tr><th>Time</th><th>Item</th><th>Quantity</th><th>From</th><th>To</th><th>Note</th></tr></thead>
+        <thead><tr><th>وقت</th><th>آئٹم</th><th>تعداد</th><th>کہاں سے</th><th>کہاں تک</th><th>نوٹ</th></tr></thead>
         <tbody>
           @for(move of store.movements(); track move.id) {
             <tr><td>{{ move.time }}</td><td>{{ move.itemName }}</td><td class="money">{{ move.quantity }}</td><td>{{ locationLabel(move.from) }}</td><td>{{ locationLabel(move.to) }}</td><td>{{ move.note }}</td></tr>
@@ -107,20 +107,20 @@
       <button class="modal-backdrop" (click)="closeModal()"></button>
       <article class="panel modal">
         <div class="modal-head">
-          <h2>{{ modalMode() === 'add' ? 'Add Item' : modalMode() === 'edit' ? 'Edit Item' : 'Item Detail' }}</h2>
+          <h2>{{ modalMode() === 'add' ? 'نیا آئٹم' : modalMode() === 'edit' ? 'آئٹم تبدیل کریں' : 'آئٹم تفصیل' }}</h2>
           <button class="icon-btn" (click)="closeModal()"><lucide-icon [img]="icons.X" [size]="16" /></button>
         </div>
         <div class="form-grid">
-          <label>Item name <input [readonly]="modalMode() === 'view'" [ngModel]="form().name" (ngModelChange)="updateForm('name', $event)" /></label>
-          <label>Category <input [readonly]="modalMode() === 'view'" [ngModel]="form().category" (ngModelChange)="updateForm('category', $event)" /></label>
-          <label>Godown stock <input type="number" min="0" [readonly]="modalMode() === 'view'" [ngModel]="form().warehouse" (ngModelChange)="updateForm('warehouse', $event)" /></label>
-          <label>Dukan stock <input type="number" min="0" [readonly]="modalMode() === 'view'" [ngModel]="form().shop" (ngModelChange)="updateForm('shop', $event)" /></label>
-          <label>Minimum <input type="number" min="0" [readonly]="modalMode() === 'view'" [ngModel]="form().minimum" (ngModelChange)="updateForm('minimum', $event)" /></label>
-          <label>Unit <input [readonly]="modalMode() === 'view'" [ngModel]="form().unit" (ngModelChange)="updateForm('unit', $event)" /></label>
+          <label>آئٹم نام <input [readonly]="modalMode() === 'view'" [ngModel]="form().name" (ngModelChange)="updateForm('name', $event)" /></label>
+          <label>قسم <input [readonly]="modalMode() === 'view'" [ngModel]="form().category" (ngModelChange)="updateForm('category', $event)" /></label>
+          <label>گودام اسٹاک <input type="number" min="0" [readonly]="modalMode() === 'view'" [ngModel]="form().warehouse" (ngModelChange)="updateForm('warehouse', $event)" /></label>
+          <label>دکان اسٹاک <input type="number" min="0" [readonly]="modalMode() === 'view'" [ngModel]="form().shop" (ngModelChange)="updateForm('shop', $event)" /></label>
+          <label>کم از کم <input type="number" min="0" [readonly]="modalMode() === 'view'" [ngModel]="form().minimum" (ngModelChange)="updateForm('minimum', $event)" /></label>
+          <label>یونٹ <input [readonly]="modalMode() === 'view'" [ngModel]="form().unit" (ngModelChange)="updateForm('unit', $event)" /></label>
         </div>
         <div class="modal-actions">
-          @if(modalMode() !== 'view') { <button class="btn btn-primary" (click)="saveItem()"><lucide-icon [img]="icons.Save" [size]="16" /> Save</button> }
-          <button class="btn" (click)="closeModal()">Close</button>
+          @if(modalMode() !== 'view') { <button class="btn btn-primary" (click)="saveItem()"><lucide-icon [img]="icons.Save" [size]="16" /> محفوظ کریں</button> }
+          <button class="btn" (click)="closeModal()">بند کریں</button>
         </div>
       </article>
     </div>

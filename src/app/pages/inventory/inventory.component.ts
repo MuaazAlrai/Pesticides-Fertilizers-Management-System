@@ -39,8 +39,8 @@ export class InventoryComponent {
     if (mode === 'warehouse') return this.store.stock().filter(item => item.warehouse > 0);
     return this.store.stock();
   });
-  readonly pageTitle = computed(() => this.mode() === 'shop' ? 'Dukan Stock' : this.mode() === 'warehouse' ? 'Godown Stock' : 'Inventory');
-  readonly detailTitle = computed(() => this.mode() === 'shop' ? 'Dukan mein para samaan' : this.mode() === 'warehouse' ? 'Godown mein para samaan' : 'Stock Detail');
+  readonly pageTitle = computed(() => this.mode() === 'shop' ? 'دکان اسٹاک' : this.mode() === 'warehouse' ? 'گودام اسٹاک' : 'اسٹاک');
+  readonly detailTitle = computed(() => this.mode() === 'shop' ? 'دکان میں موجود سامان' : this.mode() === 'warehouse' ? 'گودام میں موجود سامان' : 'اسٹاک تفصیل');
 
   constructor(readonly store: ErpStoreService) {}
 
@@ -51,7 +51,7 @@ export class InventoryComponent {
 
   transfer(): void {
     const ok = this.store.transfer(Number(this.selectedId()), Number(this.quantity()), this.from(), this.to(), 'Dukan/Godown transfer');
-    this.message.set(ok ? 'Stock transfer save ho gaya.' : 'Quantity ghalat hai ya selected jagah par stock kam hai.');
+    this.message.set(ok ? 'اسٹاک منتقلی محفوظ ہو گئی۔' : 'تعداد غلط ہے یا منتخب جگہ پر اسٹاک کم ہے۔');
     if (ok) this.quantity.set(0);
   }
 
@@ -81,21 +81,21 @@ export class InventoryComponent {
   saveItem(): void {
     const item = this.normalizedForm();
     if (!item.name || !item.unit) {
-      this.message.set('Product name aur unit zaroori hai.');
+      this.message.set('آئٹم نام اور یونٹ ضروری ہیں۔');
       return;
     }
 
     const id = this.editingId();
     if (id) this.store.updateStockItem(id, item);
     else this.store.addStockItem(item);
-    this.message.set(id ? 'Product update ho gaya.' : 'Naya product add ho gaya.');
+    this.message.set(id ? 'آئٹم update ہو گیا۔' : 'نیا آئٹم add ہو گیا۔');
     this.closeModal();
   }
 
   deleteItem(item: StockItem): void {
-    if (!confirm(`${item.name} delete karna hai?`)) return;
+    if (!confirm(`${item.name} delete کرنا ہے؟`)) return;
     this.store.deleteStockItem(item.id);
-    this.message.set('Product delete ho gaya.');
+    this.message.set('آئٹم delete ہو گیا۔');
   }
 
   updateForm(key: keyof StockInput, value: string | number): void {
@@ -104,11 +104,11 @@ export class InventoryComponent {
   }
 
   locationLabel(location: StockLocation | undefined): string {
-    return location === 'warehouse' ? 'Godown' : 'Dukan';
+    return location === 'warehouse' ? 'گودام' : 'دکان';
   }
 
   currentLocationLabel(): string {
-    return this.mode() === 'warehouse' ? 'Godown' : 'Dukan';
+    return this.mode() === 'warehouse' ? 'گودام' : 'دکان';
   }
 
   locationQty(item: StockItem): number {

@@ -1,0 +1,27 @@
+<section class="login-page">
+  <form class="panel login-card" (ngSubmit)="login()">
+    <div class="login-brand">
+      <span><lucide-icon [img]="icons.Lock" [size]="26" /></span>
+      <div>
+        <h1>ملک اشرف ای آر پی</h1>
+        <p>کھاد، سپرے اور پیسٹی سائیڈز</p>
+      </div>
+    </div>
+
+    <label>
+      ای میل
+      <span class="field"><lucide-icon [img]="icons.User" [size]="17" /><input name="identity" type="email" [ngModel]="identity()" (ngModelChange)="identity.set($event)" placeholder="admin@example.com" /></span>
+    </label>
+
+    <label>
+      پاس ورڈ
+      <span class="field"><lucide-icon [img]="icons.Lock" [size]="17" /><input name="password" type="password" [ngModel]="password()" (ngModelChange)="password.set($event)" placeholder="پاس ورڈ" /></span>
+    </label>
+
+    @if(message()) { <p class="message error">{{ message() }}</p> }
+
+    <button class="btn btn-primary" type="submit" [disabled]="loading()">
+      <lucide-icon [img]="icons.LogIn" [size]="17" /> {{ loading() ? 'چیک ہو رہا ہے...' : 'لاگ اِن' }}
+    </button>
+  </form>
+</section>

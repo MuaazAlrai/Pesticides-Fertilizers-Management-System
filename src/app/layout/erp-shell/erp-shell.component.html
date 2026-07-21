@@ -1,8 +1,11 @@
-<div class="app-shell" [class.sidebar-visible]="sidebarOpen()">
+<div class="app-shell" [class.sidebar-visible]="sidebarOpen()" [class.sidebar-collapsed]="sidebarCollapsed()">
   <aside class="sidebar">
     <div class="brand">
       <span class="brand-mark"><lucide-icon [img]="icons.Store" [size]="22" /></span>
-      <div><strong>ملک اشرف ٹریڈرز</strong><small>ERP v2.0</small></div>
+      <div><strong>ملک اشرف ٹریڈرز</strong><small>ای آر پی</small></div>
+      <button class="split-toggle" type="button" title="سائیڈبار چھوٹا/بڑا کریں" (click)="toggleSidebarSplit()">
+        <lucide-icon [img]="sidebarCollapsed() ? icons.PanelRightOpen : icons.PanelRightClose" [size]="19" />
+      </button>
       <button class="mobile-close" type="button" title="مینو بند کریں" (click)="closeSidebar()"><lucide-icon [img]="icons.X" [size]="20" /></button>
     </div>
     <nav>
@@ -12,7 +15,7 @@
         </a>
       }
     </nav>
-    <a class="settings" routerLink="/dashboard"><lucide-icon [img]="icons.Settings" [size]="18" /><span>ترتیبات</span></a>
+    <a class="settings" routerLink="/settings" routerLinkActive="active" (click)="closeSidebar()"><lucide-icon [img]="icons.Settings" [size]="18" /><span>ترتیبات</span></a>
   </aside>
 
   <div class="workspace">
@@ -22,9 +25,7 @@
         <strong>کاروباری انتظام</strong>
       </div>
       <div class="topbar-actions">
-        <label class="top-search"><lucide-icon [img]="icons.Search" [size]="17" /><input placeholder="تلاش" /></label>
-        <button class="bell" type="button" title="اطلاعات"><lucide-icon [img]="icons.Bell" [size]="18" /><span>5</span></button>
-        <button class="profile" type="button"><span class="avatar">م</span><span>ایڈمن</span><lucide-icon [img]="icons.ChevronDown" [size]="15" /></button>
+        <button class="logout-btn" type="button" title="لاگ آؤٹ" (click)="logout()"><lucide-icon [img]="icons.LogOut" [size]="17" /><span>لاگ آؤٹ</span></button>
       </div>
     </header>
     <main><router-outlet /></main>

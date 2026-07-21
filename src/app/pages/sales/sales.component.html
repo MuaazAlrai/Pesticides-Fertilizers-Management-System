@@ -1,19 +1,19 @@
 <section class="page">
   <div class="sales-page-head">
-    <h1 class="page-title">{{ formPage() ? (editingInvoice() ? 'Edit Sale' : 'New Sale') : 'Sales' }}</h1>
+    <h1 class="page-title">{{ formPage() ? (editingInvoice() ? 'سیل تبدیل کریں' : 'نئی سیل') : 'سیلز' }}</h1>
     @if(formPage()) {
-      <a class="btn" routerLink="/sales">Back to Sales</a>
+      <a class="btn" routerLink="/sales">سیلز پر واپس</a>
     } @else {
-      <a class="btn btn-primary" routerLink="/sales/new"><lucide-icon [img]="icons.Plus" [size]="17" /> New Sale</a>
+      <a class="btn btn-primary" routerLink="/sales/new"><lucide-icon [img]="icons.Plus" [size]="17" /> نئی سیل</a>
     }
   </div>
 
   @if(!formPage()) {
   <div class="summary-grid sales-summary">
-    <article class="panel summary-card"><div><strong>Rs{{ total().toLocaleString() }}</strong><span>Total sales</span></div><span class="summary-icon"><lucide-icon [img]="icons.TrendingUp" [size]="21" /></span></article>
-    <article class="panel summary-card"><div><strong>Rs{{ due().toLocaleString() }}</strong><span>Balance</span></div><span class="summary-icon red"><lucide-icon [img]="icons.WalletCards" [size]="21" /></span></article>
-    <article class="panel summary-card"><div><strong>Rs{{ profit().toLocaleString() }}</strong><span>Profit</span></div><span class="summary-icon purple"><lucide-icon [img]="icons.TrendingUp" [size]="21" /></span></article>
-    <article class="panel summary-card"><div><strong>{{ filtered().length }}</strong><span>Invoices</span></div><span class="summary-icon orange"><lucide-icon [img]="icons.RotateCcw" [size]="21" /></span></article>
+    <article class="panel summary-card"><div><strong>Rs{{ total().toLocaleString() }}</strong><span>کل سیلز</span></div><span class="summary-icon"><lucide-icon [img]="icons.TrendingUp" [size]="21" /></span></article>
+    <article class="panel summary-card"><div><strong>Rs{{ due().toLocaleString() }}</strong><span>بقایہ</span></div><span class="summary-icon red"><lucide-icon [img]="icons.WalletCards" [size]="21" /></span></article>
+    <article class="panel summary-card"><div><strong>Rs{{ profit().toLocaleString() }}</strong><span>منافع</span></div><span class="summary-icon purple"><lucide-icon [img]="icons.TrendingUp" [size]="21" /></span></article>
+    <article class="panel summary-card"><div><strong>{{ filtered().length }}</strong><span>انوائسز</span></div><span class="summary-icon orange"><lucide-icon [img]="icons.RotateCcw" [size]="21" /></span></article>
   </div>
   }
 
@@ -22,60 +22,60 @@
   @if(formPage()) {
   <article class="panel sale-entry sale-page-form">
     <div class="panel-heading sales-heading classic-toolbar">
-      <h2>{{ editingInvoice() ? 'Edit Sale' : 'Sale Form' }}</h2>
+      <h2>{{ editingInvoice() ? 'سیل تبدیل کریں' : 'سیل فارم' }}</h2>
       <div class="actions">
-        <button class="btn" (click)="startNewSale()"><lucide-icon [img]="icons.Plus" [size]="17" /> Clear Form</button>
+        <button class="btn" (click)="startNewSale()"><lucide-icon [img]="icons.Plus" [size]="17" /> فارم صاف کریں</button>
       </div>
     </div>
 
     @if(formVisible()) {
       <div class="sale-form classic-sale-form">
-        <h2 class="classic-title">Sale - Khad, Spray & Pesticides</h2>
+        <h2 class="classic-title">سیل - کھاد، سپرے اور پیسٹی سائیڈز</h2>
 
         <div class="classic-info">
           <div class="classic-box">
-            <label><span>Invoice #</span><input readonly [value]="editingInvoice() || 'New'" /></label>
-            <label><span>Date</span><input type="date" [ngModel]="saleForm().date" (ngModelChange)="updateForm('date', $event)" /></label>
-            <label class="wide"><span>Customer Name</span><input [ngModel]="saleForm().customer" (ngModelChange)="updateForm('customer', $event)" placeholder="Walk-in ya customer name" /></label>
-            <label class="wide"><span>Address / Note</span><input placeholder="Optional" /></label>
+            <label><span>انوائس #</span><input readonly [value]="editingInvoice() || 'نئی'" /></label>
+            <label><span>تاریخ</span><input type="date" [ngModel]="saleForm().date" (ngModelChange)="updateForm('date', $event)" /></label>
+            <label class="wide"><span>کسٹمر نام</span><input [ngModel]="saleForm().customer" (ngModelChange)="updateForm('customer', $event)" placeholder="کسٹمر نام لکھیں" /></label>
+            <label class="wide"><span>پتہ / نوٹ</span><input placeholder="اختیاری" /></label>
           </div>
 
           <div class="classic-box">
-            <label class="wide"><span>Customer Account</span>
+            <label class="wide"><span>کسٹمر اکاؤنٹ</span>
               <select [ngModel]="saleForm().customerId" (ngModelChange)="updateForm('customerId', $event)">
-                <option [value]="0">Select customer</option>
+                <option [value]="0">کسٹمر منتخب کریں</option>
                 @for(customer of store.customers(); track customer.id) { <option [value]="customer.id">{{ customer.name }}</option> }
               </select>
             </label>
-            <label><span>Pay Type</span>
+            <label><span>ادائیگی قسم</span>
               <select [ngModel]="saleForm().payType" (ngModelChange)="updateForm('payType', $event)">
-                <option value="cash">Cash</option>
-                <option value="credit">Credit</option>
-                <option value="partial">Partial</option>
+                <option value="cash">Wasooli</option>
+                <option value="credit">ادھار</option>
+                <option value="partial">جزوی</option>
               </select>
             </label>
-            <label><span>Pre Balance</span><input readonly [value]="balance().toLocaleString()" /></label>
-            <label class="wide"><span>Sale Man</span><input [ngModel]="saleForm().saleMan" (ngModelChange)="updateForm('saleMan', $event)" placeholder="Sale man ka naam likhein" /></label>
+            <label><span>پچھلا بقایہ</span><input readonly [value]="balance().toLocaleString()" /></label>
+            <label class="wide"><span>سیل مین</span><input [ngModel]="saleForm().saleMan" (ngModelChange)="updateForm('saleMan', $event)" placeholder="سیل مین کا نام لکھیں" /></label>
           </div>
         </div>
 
         <div class="sensitive-toggle">
           <label>
             <input type="checkbox" [ngModel]="profitHidden()" (ngModelChange)="profitHidden.set($event)" [ngModelOptions]="{ standalone: true }" />
-            Hide purchase / profit
+            خریداری / منافع چھپائیں
           </label>
-          <span>Tick karne se sirf Purchase aur Profit fields hide hongi.</span>
+          <span>ٹک کرنے سے صرف خریداری اور منافع والی فیلڈز چھپ جائیں گی۔</span>
         </div>
 
         <div class="table-scroll line-editor">
           <table>
             <thead>
               <tr>
-                <th>Sr#</th><th>Item Name</th><th>Samaan kahan se?</th><th>Available stock</th><th>Qty</th>
-                @if(!profitHidden()) { <th>Purchase</th> }
-                <th>Sale Rs</th><th>Total</th>
-                @if(!profitHidden()) { <th>Profit</th> }
-                <th>Action</th>
+                <th>نمبر</th><th>آئٹم نام</th><th>سامان کہاں سے؟</th><th>دستیاب اسٹاک</th><th>تعداد</th>
+                @if(!profitHidden()) { <th>خریداری</th> }
+                <th>سیل ریٹ</th><th>کل</th>
+                @if(!profitHidden()) { <th>منافع</th> }
+                <th>عمل</th>
               </tr>
             </thead>
             <tbody>
@@ -90,18 +90,18 @@
                   <td>
                     <div class="source-choice" role="group" aria-label="Samaan kahan se dena hai">
                       <button type="button" [class.active]="line.source === 'shop'" (click)="updateLine(i, 'source', 'shop')">
-                        Dukan
-                        <small>default</small>
+                        دکان
+                        <small>عام</small>
                       </button>
                       <button type="button" [class.active]="line.source === 'warehouse'" (click)="updateLine(i, 'source', 'warehouse')">
-                        Godown
-                        <small>big sale</small>
+                        گودام
+                        <small>بڑی سیل</small>
                       </button>
                     </div>
                   </td>
                   <td class="stock-cell">
                     <strong>{{ stockLabel(line) }}</strong>
-                    <small>Dukan {{ sourceStock(line, 'shop').toLocaleString() }} / Godown {{ sourceStock(line, 'warehouse').toLocaleString() }} {{ itemUnit(line) }}</small>
+                    <small>دکان {{ sourceStock(line, 'shop').toLocaleString() }} / گودام {{ sourceStock(line, 'warehouse').toLocaleString() }} {{ itemUnit(line) }}</small>
                   </td>
                   <td><input type="number" min="1" [ngModel]="line.quantity" (ngModelChange)="updateLine(i, 'quantity', $event)" /></td>
                   @if(!profitHidden()) { <td class="money sensitive">Rs{{ purchaseRate(line).toLocaleString() }}</td> }
@@ -117,16 +117,16 @@
 
         <div class="sale-bottom">
           <div class="classic-actions">
-            <button class="btn" (click)="addLine()"><lucide-icon [img]="icons.Plus" [size]="16" /> Add Item</button>
-            <a class="btn" routerLink="/sales">Cancel</a>
+            <button class="btn" (click)="addLine()"><lucide-icon [img]="icons.Plus" [size]="16" /> آئٹم شامل کریں</button>
+            <a class="btn" routerLink="/sales">منسوخ</a>
           </div>
           <div class="bill-box">
-            @if(!profitHidden()) { <label>Purchase Cost <input readonly [value]="billCost().toLocaleString()" /></label> }
-            <label>Total Bill <input readonly [value]="billTotal().toLocaleString()" /></label>
-            @if(!profitHidden()) { <label>Profit <input readonly [value]="billProfit().toLocaleString()" /></label> }
-            <label>Receive Cash <input type="number" min="0" [ngModel]="saleForm().receivedCash" (ngModelChange)="updateForm('receivedCash', $event)" /></label>
-            <label>Balance <input readonly [value]="balance().toLocaleString()" /></label>
-            <button class="btn btn-primary" (click)="saveSale()"><lucide-icon [img]="icons.Save" [size]="16" /> Save Sale</button>
+            @if(!profitHidden()) { <label>خریداری لاگت <input readonly [value]="billCost().toLocaleString()" /></label> }
+            <label>کل بل <input readonly [value]="billTotal().toLocaleString()" /></label>
+            @if(!profitHidden()) { <label>منافع <input readonly [value]="billProfit().toLocaleString()" /></label> }
+            <label>Wasooli <input type="number" min="0" [ngModel]="saleForm().receivedCash" (ngModelChange)="updateForm('receivedCash', $event)" /></label>
+            <label>بقایہ <input readonly [value]="balance().toLocaleString()" /></label>
+            <button class="btn btn-primary" (click)="saveSale()"><lucide-icon [img]="icons.Save" [size]="16" /> سیل محفوظ کریں</button>
           </div>
         </div>
       </div>
@@ -137,24 +137,24 @@
   @if(!formPage()) {
   <article class="panel data-panel">
     <div class="panel-heading sales-heading">
-      <h2>Sales List</h2>
+      <h2>سیلز لسٹ</h2>
       <div class="actions">
-        <button class="btn"><lucide-icon [img]="icons.Download" [size]="16" /> Export</button>
+        <button class="btn"><lucide-icon [img]="icons.Download" [size]="16" /> ایکسپورٹ</button>
         <button class="btn btn-success"><lucide-icon [img]="icons.MessageCircle" [size]="16" /> WhatsApp</button>
       </div>
     </div>
     <div class="filters">
-      <input class="search" [ngModel]="search()" (ngModelChange)="search.set($event)" placeholder="Search invoice, customer, product, dukan/godown..." />
-      <button class="period" [class.active]="period() === 'today'" (click)="setPeriod('today')">Today</button>
-      <button class="period" [class.active]="period() === 'month'" (click)="setPeriod('month')">This Month</button>
-      <button class="period" [class.active]="period() === 'year'" (click)="setPeriod('year')">This Year</button>
-      <button class="period" [class.active]="period() === 'all'" (click)="setPeriod('all')">All</button>
-      <label class="date-filter">From <input type="date" [ngModel]="fromDate()" (ngModelChange)="updateFromDate($event)" /></label>
-      <label class="date-filter">To <input type="date" [ngModel]="toDate()" (ngModelChange)="updateToDate($event)" /></label>
+      <input class="search" [ngModel]="search()" (ngModelChange)="search.set($event)" placeholder="انوائس، کسٹمر، آئٹم، دکان/گودام تلاش کریں..." />
+      <button class="period" [class.active]="period() === 'today'" (click)="setPeriod('today')">آج</button>
+      <button class="period" [class.active]="period() === 'month'" (click)="setPeriod('month')">یہ ماہ</button>
+      <button class="period" [class.active]="period() === 'year'" (click)="setPeriod('year')">یہ سال</button>
+      <button class="period" [class.active]="period() === 'all'" (click)="setPeriod('all')">سب</button>
+      <label class="date-filter">سے <input type="date" [ngModel]="fromDate()" (ngModelChange)="updateFromDate($event)" /></label>
+      <label class="date-filter">تک <input type="date" [ngModel]="toDate()" (ngModelChange)="updateToDate($event)" /></label>
     </div>
     <div class="table-scroll">
       <table>
-        <thead><tr><th>Invoice</th><th>Customer</th><th>Date</th><th>Item</th><th>Qty</th><th>Source</th><th>Sale Man</th><th>Total</th><th>Pay Type</th><th>Received</th><th>Balance</th><th>Actions</th></tr></thead>
+        <thead><tr><th>انوائس</th><th>کسٹمر</th><th>تاریخ</th><th>آئٹم</th><th>تعداد</th><th>جگہ</th><th>سیل مین</th><th>کل</th><th>ادائیگی</th><th>وصولی</th><th>بقایہ</th><th>عمل</th></tr></thead>
         <tbody>
           @for (sale of filtered(); track sale.invoice) {
             <tr>
@@ -177,7 +177,7 @@
               </div></td>
             </tr>
           } @empty {
-            <tr><td colspan="12" class="empty">No sales found.</td></tr>
+            <tr><td colspan="12" class="empty">کوئی سیل نہیں ملی۔</td></tr>
           }
         </tbody>
       </table>
@@ -190,16 +190,16 @@
       <button class="modal-backdrop" (click)="closeView()"></button>
       <article class="panel modal">
         <div class="modal-head">
-          <h2>Invoice {{ viewingSale()?.invoice }}</h2>
+          <h2>انوائس {{ viewingSale()?.invoice }}</h2>
           <button class="icon-btn" (click)="closeView()"><lucide-icon [img]="icons.X" [size]="16" /></button>
         </div>
-        <p class="detail-line"><b>Customer:</b> {{ viewingSale()?.customer }}</p>
-        <p class="detail-line"><b>Date:</b> {{ viewingSale() ? saleDate(viewingSale()!) : '' }}</p>
-        <p class="detail-line"><b>Sale Man:</b> {{ viewingSale()?.saleMan || '-' }}</p>
-        <p class="detail-line"><b>Total:</b> Rs{{ (viewingSale()?.amount ?? 0).toLocaleString() }}</p>
+        <p class="detail-line"><b>کسٹمر:</b> {{ viewingSale()?.customer }}</p>
+        <p class="detail-line"><b>تاریخ:</b> {{ viewingSale() ? saleDate(viewingSale()!) : '' }}</p>
+        <p class="detail-line"><b>سیل مین:</b> {{ viewingSale()?.saleMan || '-' }}</p>
+        <p class="detail-line"><b>کل:</b> Rs{{ (viewingSale()?.amount ?? 0).toLocaleString() }}</p>
         <div class="table-scroll">
           <table>
-            <thead><tr><th>Item</th><th>Source</th><th>Qty</th><th>Purchase</th><th>Rate</th><th>Total</th><th>Profit</th></tr></thead>
+            <thead><tr><th>آئٹم</th><th>جگہ</th><th>تعداد</th><th>خریداری</th><th>ریٹ</th><th>کل</th><th>منافع</th></tr></thead>
             <tbody>
               @for(line of viewingSale()?.lines ?? []; track $index) {
                 <tr><td>{{ line.itemName }}</td><td>{{ locationLabel(line.source) }}</td><td>{{ line.quantity }}</td><td class="money">Rs{{ purchaseRate(line).toLocaleString() }}</td><td class="money">Rs{{ line.rate.toLocaleString() }}</td><td class="money">Rs{{ line.total.toLocaleString() }}</td><td class="money profit">Rs{{ lineProfit(line).toLocaleString() }}</td></tr>

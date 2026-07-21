@@ -8,13 +8,11 @@ type CustomerForm = Omit<Customer, 'id'>;
 interface LedgerRow {
   date: string;
   invoice: string;
-  itemName: string;
-  quantity: number;
-  unit: string;
-  rate: number;
-  total: number;
-  profit: number;
-  source: string;
+  detail: string;
+  saleTotal: number;
+  received: number;
+  balance: number;
+  runningBalance: number;
   payment: string;
 }
 
@@ -35,7 +33,7 @@ export class CustomersComponent {
   readonly fromDate = signal(this.todayIso());
   readonly toDate = signal(this.todayIso());
   readonly message = signal('');
-  readonly form = signal<CustomerForm>({ name: '', mobile: '', city: '', type: 'Retail', balance: 0, status: 'active', lastDeal: 'New customer' });
+  readonly form = signal<CustomerForm>({ name: '', mobile: '', city: '', type: '', balance: 0, status: 'active', lastDeal: 'New customer' });
 
   readonly filtered = computed(() => {
     const q = this.search().trim().toLowerCase();
@@ -54,39 +52,37 @@ export class CustomersComponent {
       this.saleDate(sale) <= this.toDate()
     );
   });
-  readonly ledgerRows = computed<LedgerRow[]>(() => this.customerHistory().flatMap(sale => {
-    const lines = sale.lines?.length ? sale.lines : [{
-      itemName: sale.itemName || '-',
-      quantity: sale.quantity || 0,
-      unit: '',
-      rate: sale.quantity ? Math.round(sale.amount / sale.quantity) : sale.amount,
-      total: sale.amount,
-      profit: sale.profit,
-      source: sale.source ?? 'shop',
-    }];
-
-    return lines.map(line => ({
+  readonly ledgerRows = computed<LedgerRow[]>(() => {
+    let runningBalance = 0;
+    return [...this.customerHistory()]
+      .sort((a, b) => `${this.saleDate(a)} ${a.time}`.localeCompare(`${this.saleDate(b)} ${b.time}`))
+      .map(sale => {
+        const received = Number(sale.receivedCash || 0);
+        const balance = Number(sale.balance || Math.max(0, sale.amount - received));
+        runningBalance += sale.amount - received;
+        return {
       date: this.saleDate(sale),
       invoice: sale.invoice,
-      itemName: line.itemName,
-      quantity: line.quantity,
-      unit: line.unit,
-      rate: line.rate,
-      total: line.total,
-      profit: Number(line.profit ?? sale.profit ?? 0),
-      source: line.source === 'warehouse' ? 'Godown' : 'Dukan',
+          detail: this.saleDetail(sale),
+          saleTotal: sale.amount,
+          received,
+          balance,
+          runningBalance,
       payment: sale.payType ? this.payTypeLabel(sale.payType) : this.paymentLabel(sale.payment),
-    }));
-  }));
+        };
+      })
+      .reverse();
+  });
   readonly historyTotal = computed(() => this.customerHistory().reduce((sum, sale) => sum + sale.amount, 0));
-  readonly historyProfit = computed(() => this.customerHistory().reduce((sum, sale) => sum + sale.profit, 0));
-  readonly historyItems = computed(() => this.ledgerRows().reduce((sum, row) => sum + row.quantity, 0));
+  readonly historyWasooli = computed(() => this.customerHistory().reduce((sum, sale) => sum + Number(sale.receivedCash || 0), 0));
+  readonly historyBalance = computed(() => this.customerHistory().reduce((sum, sale) => sum + Number(sale.balance || 0), 0));
+  readonly historyInvoices = computed(() => this.customerHistory().length);
 
   constructor(readonly store: ErpStoreService) {}
 
   openAdd(): void {
     this.selectedCustomerId.set(null);
-    this.form.set({ name: '', mobile: '', city: '', type: 'Retail', balance: 0, status: 'active', lastDeal: 'New customer' });
+    this.form.set({ name: '', mobile: '', city: '', type: '', balance: 0, status: 'active', lastDeal: 'New customer' });
     this.modalMode.set('add');
   }
 
@@ -111,26 +107,26 @@ export class CustomersComponent {
   saveCustomer(): void {
     const customer = this.normalizedForm();
     if (!customer.name || !customer.mobile) {
-      this.message.set('Customer name aur mobile zaroori hain.');
+      this.message.set('کسٹمر نام اور موبائل ضروری ہیں۔');
       return;
     }
 
     const id = this.selectedCustomerId();
     if (id) {
       this.store.updateCustomer(id, customer);
-      this.message.set('Customer update ho gaya.');
+      this.message.set('کسٹمر update ہو گیا۔');
     } else {
       this.store.addCustomer(customer);
-      this.message.set('Customer add ho gaya.');
+      this.message.set('کسٹمر add ہو گیا۔');
     }
     this.closeModal();
   }
 
   deleteCustomer(customer: Customer): void {
-    if (!confirm(`${customer.name} delete karna hai?`)) return;
+    if (!confirm(`${customer.name} delete کرنا ہے؟`)) return;
     this.store.deleteCustomer(customer.id);
     if (this.historyCustomerId() === customer.id) this.historyCustomerId.set(null);
-    this.message.set('Customer delete ho gaya.');
+    this.message.set('کسٹمر delete ہو گیا۔');
   }
 
   showHistory(customer: Customer): void {
@@ -138,8 +134,7 @@ export class CustomersComponent {
   }
 
   updateForm(key: keyof CustomerForm, value: string | number): void {
-    const numeric = key === 'balance';
-    this.form.update(current => ({ ...current, [key]: numeric ? Number(value) || 0 : value }));
+    this.form.update(current => ({ ...current, [key]: value }));
   }
 
   updateFromDate(value: string): void {
@@ -151,9 +146,9 @@ export class CustomersComponent {
   }
 
   statusLabel(status: CustomerStatus): string {
-    if (status === 'active' || status === 'فعال') return 'Active';
-    if (status === 'inactive' || status === 'غیر فعال') return 'Inactive';
-    return 'Blocked';
+    if (status === 'active' || status === 'فعال') return 'فعال';
+    if (status === 'inactive' || status === 'غیر فعال') return 'غیر فعال';
+    return 'بلاک';
   }
 
   saleDate(sale: Sale): string {
@@ -176,14 +171,42 @@ export class CustomersComponent {
     return this.customerSales(customer).reduce((sum, sale) => sum + Math.max(0, Number(sale.receivedCash || 0) - sale.amount), 0);
   }
 
+  customerWhatsAppUrl(customer: Customer): string {
+    const message = [
+      `Assalam o Alaikum ${customer.name},`,
+      `Aap ka account detail:`,
+      `Total sale: Rs${this.customerSalesTotal(customer).toLocaleString()}`,
+      `Wasooli: Rs${this.customerCashPaid(customer).toLocaleString()}`,
+      `Baqaya: Rs${this.customerDue(customer).toLocaleString()}`,
+      `Advance: Rs${this.customerAdvance(customer).toLocaleString()}`,
+      `Malik Ashraf Traders`,
+    ].join('\n');
+    return this.whatsAppUrl(customer.mobile, message);
+  }
+
+  historyWhatsAppUrl(): string {
+    const customer = this.selectedHistoryCustomer();
+    if (!customer) return 'https://wa.me/';
+    const message = [
+      `Assalam o Alaikum ${customer.name},`,
+      `Aap ka ledger detail (${this.fromDate()} se ${this.toDate()} tak):`,
+      `Invoices: ${this.historyInvoices().toLocaleString()}`,
+      `Total sale: Rs${this.historyTotal().toLocaleString()}`,
+      `Wasooli: Rs${this.historyWasooli().toLocaleString()}`,
+      `Baqaya: Rs${this.historyBalance().toLocaleString()}`,
+      `Malik Ashraf Traders`,
+    ].join('\n');
+    return this.whatsAppUrl(customer.mobile, message);
+  }
+
   paymentLabel(payment: Sale['payment']): string {
-    if (payment === 'paid' || payment === 'فعال') return 'Cash';
-    if (payment === 'due' || payment === 'بقایا') return 'Credit';
-    return 'Partial';
+    if (payment === 'paid' || payment === 'فعال') return 'وصولی';
+    if (payment === 'due' || payment === 'بقایا') return 'ادھار';
+    return 'جزوی';
   }
 
   payTypeLabel(payType: Sale['payType']): string {
-    return payType === 'cash' ? 'Cash' : payType === 'credit' ? 'Credit' : 'Partial';
+    return payType === 'cash' ? 'وصولی' : payType === 'credit' ? 'ادھار' : 'جزوی';
   }
 
   private normalizedForm(): CustomerForm {
@@ -192,8 +215,8 @@ export class CustomersComponent {
       name: current.name.trim(),
       mobile: current.mobile.trim(),
       city: current.city.trim(),
-      type: current.type.trim() || 'Retail',
-      balance: Number(current.balance) || 0,
+      type: '',
+      balance: 0,
       status: current.status || 'active',
       lastDeal: current.lastDeal?.trim() || 'New customer',
     };
@@ -204,8 +227,8 @@ export class CustomersComponent {
       name: customer.name,
       mobile: customer.mobile,
       city: customer.city,
-      type: customer.type,
-      balance: customer.balance,
+      type: '',
+      balance: 0,
       status: customer.status,
       lastDeal: customer.lastDeal,
     };
@@ -213,6 +236,27 @@ export class CustomersComponent {
 
   private customerSales(customer: Customer): Sale[] {
     return this.store.sales().filter(sale => sale.customerId === customer.id || sale.customer === customer.name);
+  }
+
+  private whatsAppUrl(phone: string, message: string): string {
+    const number = this.normalizedPhone(phone);
+    const text = encodeURIComponent(message);
+    return number ? `https://wa.me/${number}?text=${text}` : `https://wa.me/?text=${text}`;
+  }
+
+  private normalizedPhone(phone: string): string {
+    const digits = phone.replace(/\D/g, '');
+    if (!digits) return '';
+    if (digits.startsWith('92')) return digits;
+    if (digits.startsWith('0')) return `92${digits.slice(1)}`;
+    return digits;
+  }
+
+  private saleDetail(sale: Sale): string {
+    if (sale.lines?.length) {
+      return sale.lines.map(line => `${line.itemName} - ${line.quantity} ${line.unit}`).join(', ');
+    }
+    return `${sale.itemName || '-'}${sale.quantity ? ` - ${sale.quantity}` : ''}`;
   }
 
   private todayIso(): string {

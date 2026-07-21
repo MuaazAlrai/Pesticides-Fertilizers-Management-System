@@ -1,0 +1,11 @@
+.page-head { margin-bottom: 16px; }
+.page-head p { margin: 5px 0 0; color: var(--muted); font-size: 13px; }
+.settings-card { max-width: 760px; overflow: hidden; }
+.panel-heading h2 { display: flex; align-items: center; gap: 8px; }
+.form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 13px; padding: 0 20px 16px; }
+label { display: grid; gap: 7px; color: #466054; font-size: 12px; font-weight: 700; }
+input { height: 42px; border: 1px solid #ceddd4; border-radius: 8px; padding: 7px 10px; background: white; color: var(--ink); }
+.message { margin: 0 20px 14px; color: #087d3c; font-size: 12px; }
+.actions { display: flex; justify-content: flex-start; padding: 0 20px 20px; }
+.btn { display: inline-flex; align-items: center; gap: 7px; }
+@media (max-width: 650px) { .form-grid { grid-template-columns: 1fr; } }

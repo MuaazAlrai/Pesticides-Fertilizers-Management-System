@@ -1,30 +1,30 @@
-<section class="page">
-  <h1 class="page-title">Customers</h1>
+﻿<section class="page">
+  <h1 class="page-title">کسٹمرز</h1>
   <div class="panel toolbar customer-toolbar">
-    <input class="search" [ngModel]="search()" (ngModelChange)="search.set($event)" placeholder="Search name, mobile, city..." />
+    <input class="search" [ngModel]="search()" (ngModelChange)="search.set($event)" placeholder="نام، موبائل، شہر تلاش کریں..." />
     <select class="select" [ngModel]="status()" (ngModelChange)="status.set($event)">
-      <option value="all">All</option>
-      <option value="active">Active</option>
-      <option value="inactive">Inactive</option>
-      <option value="blocked">Blocked</option>
+      <option value="all">سب</option>
+      <option value="active">فعال</option>
+      <option value="inactive">غیر فعال</option>
+      <option value="blocked">بلاک</option>
     </select>
-    <button class="btn btn-primary" type="button" (click)="openAdd()"><lucide-icon [img]="icons.Plus" [size]="17" /> New Customer</button>
-    <button class="btn" type="button"><lucide-icon [img]="icons.Download" [size]="16" /> Export</button>
+    <button class="btn btn-primary" type="button" (click)="openAdd()"><lucide-icon [img]="icons.Plus" [size]="17" /> نیا کسٹمر</button>
+    <button class="btn" type="button"><lucide-icon [img]="icons.Download" [size]="16" /> ایکسپورٹ</button>
   </div>
 
   @if(message()) { <p class="message" [class.error]="message().includes('zaroori')">{{ message() }}</p> }
 
   <div class="status-row">
-    <span><b>{{ store.customers().length }}</b> Total</span>
-    <span><b class="green">{{ store.customers().filter(c => c.status === 'active' || c.status === 'فعال').length }}</b> Active</span>
-    <span><b class="orange">{{ store.customers().filter(c => c.status === 'inactive' || c.status === 'غیر فعال').length }}</b> Inactive</span>
-    <span><b class="red">{{ store.customers().filter(c => c.status === 'blocked' || c.status === 'بلاک').length }}</b> Blocked</span>
+    <span><b>{{ store.customers().length }}</b> کل</span>
+    <span><b class="green">{{ store.customers().filter(c => c.status === 'active' || c.status === 'فعال').length }}</b> فعال</span>
+    <span><b class="orange">{{ store.customers().filter(c => c.status === 'inactive' || c.status === 'غیر فعال').length }}</b> غیر فعال</span>
+    <span><b class="red">{{ store.customers().filter(c => c.status === 'blocked' || c.status === 'بلاک').length }}</b> بلاک</span>
   </div>
 
   <article class="panel data-panel">
     <div class="table-scroll">
       <table>
-        <thead><tr><th>#</th><th>Name</th><th>Mobile</th><th>City</th><th>Type</th><th>Total Sale</th><th>Naqad</th><th>Baqaya</th><th>Advance</th><th>Manual Balance</th><th>Last Deal</th><th>Status</th><th>Actions</th></tr></thead>
+        <thead><tr><th>#</th><th>نام</th><th>موبائل</th><th>شہر</th><th>کل سیل</th><th>وصولی</th><th>بقایہ</th><th>ایڈوانس</th><th>آخری سودا</th><th>حالت</th><th>عمل</th></tr></thead>
         <tbody>
           @for (customer of filtered(); track customer.id; let i = $index) {
             <tr>
@@ -32,18 +32,16 @@
               <td><strong>{{ customer.name }}</strong></td>
               <td class="latin">{{ customer.mobile }}</td>
               <td>{{ customer.city }}</td>
-              <td>{{ customer.type }}</td>
               <td class="money">Rs{{ customerSalesTotal(customer).toLocaleString() }}</td>
               <td class="money green">Rs{{ customerCashPaid(customer).toLocaleString() }}</td>
               <td class="money red">Rs{{ customerDue(customer).toLocaleString() }}</td>
               <td class="money green">Rs{{ customerAdvance(customer).toLocaleString() }}</td>
-              <td class="money" [class.negative]="customer.balance < 0">Rs{{ customer.balance.toLocaleString() }}</td>
               <td>{{ customer.lastDeal }}</td>
               <td><span class="badge" [class.badge-success]="customer.status === 'active' || customer.status === 'فعال'" [class.badge-warning]="customer.status === 'inactive' || customer.status === 'غیر فعال'" [class.badge-danger]="customer.status === 'blocked' || customer.status === 'بلاک'">{{ statusLabel(customer.status) }}</span></td>
               <td><div class="icon-actions">
                 <button class="icon-btn" title="History" (click)="showHistory(customer)"><lucide-icon [img]="icons.Eye" [size]="14" /></button>
                 <button class="icon-btn edit" title="Edit" (click)="openEdit(customer)"><lucide-icon [img]="icons.Pencil" [size]="14" /></button>
-                <button class="icon-btn chat" title="WhatsApp"><lucide-icon [img]="icons.MessageCircle" [size]="14" /></button>
+                <a class="icon-btn chat" title="WhatsApp" [href]="customerWhatsAppUrl(customer)" target="_blank" rel="noopener"><lucide-icon [img]="icons.MessageCircle" [size]="14" /></a>
                 <button class="icon-btn danger" title="Delete" (click)="deleteCustomer(customer)"><lucide-icon [img]="icons.Trash2" [size]="14" /></button>
               </div></td>
             </tr>
@@ -57,45 +55,40 @@
     <article class="panel data-panel history-panel">
       <div class="panel-heading history-heading">
         <div>
-          <h2>{{ selectedHistoryCustomer()?.name }} Ledger</h2>
+          <h2>{{ selectedHistoryCustomer()?.name }} کسٹمر لیجر</h2>
           <small>
-            Rs{{ historyTotal().toLocaleString() }} sales / {{ historyItems().toLocaleString() }} items
-            @if(!profitHidden()) { / Rs{{ historyProfit().toLocaleString() }} profit }
+            {{ historyInvoices().toLocaleString() }} انوائسز / سیل Rs{{ historyTotal().toLocaleString() }} / وصولی Rs{{ historyWasooli().toLocaleString() }} / بقایہ Rs{{ historyBalance().toLocaleString() }}
           </small>
         </div>
         <div class="history-filters">
-          <label>From <input type="date" [ngModel]="fromDate()" (ngModelChange)="updateFromDate($event)" /></label>
-          <label>To <input type="date" [ngModel]="toDate()" (ngModelChange)="updateToDate($event)" /></label>
-          <button class="btn" type="button" (click)="profitHidden.set(!profitHidden())">
-            <lucide-icon [img]="profitHidden() ? icons.Eye : icons.EyeOff" [size]="16" />
-            {{ profitHidden() ? 'Show Profit' : 'Hide Profit' }}
-          </button>
+          <label>سے <input type="date" [ngModel]="fromDate()" (ngModelChange)="updateFromDate($event)" /></label>
+          <label>تک <input type="date" [ngModel]="toDate()" (ngModelChange)="updateToDate($event)" /></label>
+          <a class="btn btn-success" [href]="historyWhatsAppUrl()" target="_blank" rel="noopener">
+            <lucide-icon [img]="icons.MessageCircle" [size]="16" /> WhatsApp
+          </a>
         </div>
       </div>
       <div class="table-scroll">
         <table>
           <thead>
             <tr>
-              <th>Date</th><th>Invoice</th><th>Item</th><th>Qty</th><th>Source</th><th>Sale Rate</th><th>Total</th>
-              @if(!profitHidden()) { <th>Profit</th> }
-              <th>Payment</th>
+              <th>تاریخ</th><th>انوائس</th><th>تفصیل</th><th>سیل رقم</th><th>وصولی</th><th>انوائس بقایہ</th><th>چلتا بقایہ</th><th>ادائیگی</th>
             </tr>
           </thead>
           <tbody>
-            @for(row of ledgerRows(); track row.invoice + row.itemName + $index) {
+            @for(row of ledgerRows(); track row.invoice + row.detail + $index) {
               <tr>
                 <td>{{ row.date }}</td>
                 <td class="money">{{ row.invoice }}</td>
-                <td><strong>{{ row.itemName }}</strong></td>
-                <td class="money">{{ row.quantity }} {{ row.unit }}</td>
-                <td><span class="badge source">{{ row.source }}</span></td>
-                <td class="money">Rs{{ row.rate.toLocaleString() }}</td>
-                <td class="money">Rs{{ row.total.toLocaleString() }}</td>
-                @if(!profitHidden()) { <td class="money profit">Rs{{ row.profit.toLocaleString() }}</td> }
+                <td><strong>{{ row.detail }}</strong></td>
+                <td class="money">Rs{{ row.saleTotal.toLocaleString() }}</td>
+                <td class="money green">Rs{{ row.received.toLocaleString() }}</td>
+                <td class="money red">Rs{{ row.balance.toLocaleString() }}</td>
+                <td class="money due">Rs{{ row.runningBalance.toLocaleString() }}</td>
                 <td>{{ row.payment }}</td>
               </tr>
             } @empty {
-              <tr><td [attr.colspan]="profitHidden() ? 8 : 9" class="empty">Is date range me customer ka record nahi mila.</td></tr>
+              <tr><td colspan="8" class="empty">اس تاریخ میں کسٹمر کا ریکارڈ نہیں ملا۔</td></tr>
             }
           </tbody>
         </table>
@@ -109,30 +102,27 @@
     <button class="modal-backdrop" (click)="closeModal()" aria-label="Close"></button>
     <form class="modal panel" (ngSubmit)="saveCustomer()">
       <div class="modal-head">
-        <h2>{{ modalMode() === 'add' ? 'New Customer' : modalMode() === 'edit' ? 'Edit Customer' : 'Customer Detail' }}</h2>
+        <h2>{{ modalMode() === 'add' ? 'نیا کسٹمر' : modalMode() === 'edit' ? 'کسٹمر تبدیل کریں' : 'کسٹمر تفصیل' }}</h2>
         <button type="button" class="icon-btn" (click)="closeModal()"><lucide-icon [img]="icons.X" [size]="18" /></button>
       </div>
-      <label>Customer name <input name="name" [readonly]="modalMode() === 'view'" [ngModel]="form().name" (ngModelChange)="updateForm('name', $event)" required /></label>
-      <label>Mobile number <input name="mobile" [readonly]="modalMode() === 'view'" [ngModel]="form().mobile" (ngModelChange)="updateForm('mobile', $event)" required /></label>
+      <label>کسٹمر نام <input name="name" [readonly]="modalMode() === 'view'" [ngModel]="form().name" (ngModelChange)="updateForm('name', $event)" required /></label>
+      <label>موبائل نمبر <input name="mobile" [readonly]="modalMode() === 'view'" [ngModel]="form().mobile" (ngModelChange)="updateForm('mobile', $event)" required /></label>
       <div class="form-grid">
-        <label>City <input name="city" [readonly]="modalMode() === 'view'" [ngModel]="form().city" (ngModelChange)="updateForm('city', $event)" /></label>
-        <label>Customer type <input name="type" [readonly]="modalMode() === 'view'" [ngModel]="form().type" (ngModelChange)="updateForm('type', $event)" /></label>
-      </div>
-      <div class="form-grid">
-        <label>Balance <input name="balance" type="number" [readonly]="modalMode() === 'view'" [ngModel]="form().balance" (ngModelChange)="updateForm('balance', $event)" /></label>
-        <label>Status
+        <label>شہر <input name="city" [readonly]="modalMode() === 'view'" [ngModel]="form().city" (ngModelChange)="updateForm('city', $event)" /></label>
+        <label>حالت
           <select name="status" [disabled]="modalMode() === 'view'" [ngModel]="form().status" (ngModelChange)="updateForm('status', $event)">
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
-            <option value="blocked">Blocked</option>
+            <option value="active">فعال</option>
+            <option value="inactive">غیر فعال</option>
+            <option value="blocked">بلاک</option>
           </select>
         </label>
       </div>
-      <label>Last deal <input name="lastDeal" [readonly]="modalMode() === 'view'" [ngModel]="form().lastDeal" (ngModelChange)="updateForm('lastDeal', $event)" /></label>
+      <label>آخری سودا <input name="lastDeal" [readonly]="modalMode() === 'view'" [ngModel]="form().lastDeal" (ngModelChange)="updateForm('lastDeal', $event)" /></label>
       <div class="modal-actions">
-        <button class="btn" type="button" (click)="closeModal()">Cancel</button>
-        @if(modalMode() !== 'view') { <button class="btn btn-primary" type="submit"><lucide-icon [img]="icons.Save" [size]="16" /> Save</button> }
+        <button class="btn" type="button" (click)="closeModal()">منسوخ</button>
+        @if(modalMode() !== 'view') { <button class="btn btn-primary" type="submit"><lucide-icon [img]="icons.Save" [size]="16" /> محفوظ کریں</button> }
       </div>
     </form>
   </div>
 }
+

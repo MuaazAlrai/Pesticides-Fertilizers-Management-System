@@ -104,7 +104,7 @@ export class ErpStoreService {
 
   readonly sales = signal<Sale[]>(this.normalizeSales(this.load('mat-sales', [
     { invoice: 'INV-0541', customer: 'Mian Iqbal Kisan', customerId: 1, time: 'Aaj 14:30', date: this.todayIso(), amount: 28500, profit: 3420, payment: 'paid', payType: 'credit', kind: 'Udhar', saleMan: '', itemId: 1, itemName: 'DAP Khad 50kg', quantity: 5, source: 'shop', receivedCash: 0, balance: 28500 },
-    { invoice: 'INV-0540', customer: 'Ahmed Agro Farm', customerId: 2, time: 'Aaj 11:15', date: this.todayIso(), amount: 12300, profit: 1476, payment: 'paid', payType: 'cash', kind: 'Naqad', saleMan: '', itemId: 2, itemName: 'Urea Khad 50kg', quantity: 2, source: 'warehouse', receivedCash: 12300, balance: 0 },
+    { invoice: 'INV-0540', customer: 'Ahmed Agro Farm', customerId: 2, time: 'Aaj 11:15', date: this.todayIso(), amount: 12300, profit: 1476, payment: 'paid', payType: 'cash', kind: 'Wasooli', saleMan: '', itemId: 2, itemName: 'Urea Khad 50kg', quantity: 2, source: 'warehouse', receivedCash: 12300, balance: 0 },
   ])));
 
   readonly stock = signal<StockItem[]>(this.normalizeStock(this.load('mat-stock', [

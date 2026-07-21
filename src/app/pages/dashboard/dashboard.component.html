@@ -1,8 +1,8 @@
 <section class="page">
   <div class="welcome">
     <div>
-      <h1 class="page-title">Dashboard</h1>
-      <p>Aaj ke karobar ki taza surat-e-haal</p>
+      <h1 class="page-title">ڈیش بورڈ</h1>
+      <p>آج کے کاروبار کی تازہ صورتحال</p>
     </div>
     <span>18 July 2026</span>
   </div>
@@ -25,13 +25,13 @@
   <div class="dashboard-columns">
     <article class="panel data-panel recent-sales">
       <div class="panel-heading">
-        <h2>Recent sales</h2>
-        <a routerLink="/sales">Sab dekhein</a>
+        <h2>حالیہ سیلز</h2>
+        <a routerLink="/sales">سب دیکھیں</a>
       </div>
       <div class="table-scroll">
         <table>
           <thead>
-            <tr><th>Invoice</th><th>Customer</th><th>Amount</th><th>Status</th></tr>
+            <tr><th>انوائس</th><th>کسٹمر</th><th>رقم</th><th>حالت</th></tr>
           </thead>
           <tbody>
             @for (sale of store.sales(); track sale.invoice) {
@@ -51,8 +51,8 @@
 
     <article class="panel alerts">
       <div class="panel-heading">
-        <h2>Stock alerts</h2>
-        <a routerLink="/inventory">Inventory</a>
+        <h2>اسٹاک الرٹ</h2>
+        <a routerLink="/inventory">اسٹاک</a>
       </div>
       <div class="alert-list">
         @for (item of lowStock(); track item.id) {
@@ -60,16 +60,16 @@
             <span><lucide-icon [img]="icons.AlertTriangle" [size]="18" /></span>
             <div>
               <strong>{{ item.name }}</strong>
-              <small>Total {{ item.warehouse + item.shop }} {{ item.unit }} available</small>
-              <small>Godown {{ item.warehouse }} / Dukan {{ item.shop }} {{ item.unit }}</small>
+              <small>کل {{ item.warehouse + item.shop }} {{ item.unit }} دستیاب</small>
+              <small>گودام {{ item.warehouse }} / دکان {{ item.shop }} {{ item.unit }}</small>
             </div>
-            <b>Low</b>
+            <b>کم</b>
           </div>
         }
         @if (!lowStock().length) {
           <div class="empty">
             <lucide-icon [img]="icons.PackageCheck" [size]="30" />
-            <span>Tamam stock munasib miqdar mein hai</span>
+            <span>تمام اسٹاک مناسب مقدار میں ہے</span>
           </div>
         }
       </div>

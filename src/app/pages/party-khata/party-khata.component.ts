@@ -1,7 +1,7 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { Building2, Eye, Pencil, ReceiptText, Trash2, Users, WalletCards, LucideAngularModule } from 'lucide-angular';
+import { Building2, Eye, MessageCircle, Pencil, ReceiptText, Trash2, Users, WalletCards, LucideAngularModule } from 'lucide-angular';
 import { ErpStoreService, Purchase, Sale } from '../../core/erp-store.service';
 
 type PartyType = 'customer' | 'supplier';
@@ -34,7 +34,7 @@ interface KhataRow {
 })
 export class PartyKhataComponent {
   readonly store = inject(ErpStoreService);
-  readonly icons = { Building2, Eye, Pencil, ReceiptText, Trash2, Users, WalletCards };
+  readonly icons = { Building2, Eye, MessageCircle, Pencil, ReceiptText, Trash2, Users, WalletCards };
   readonly selectedPartyKey = signal('');
   readonly fromDate = signal('');
   readonly toDate = signal('');
@@ -96,13 +96,28 @@ export class PartyKhataComponent {
   }
 
   deleteRow(row: KhataRow): void {
-    if (!confirm(`${row.invoice} delete karni hai?`)) return;
+    if (!confirm(`${row.invoice} delete کرنی ہے؟`)) return;
     if (row.type === 'Sale') this.store.deleteSale(row.invoice);
     else this.store.deletePurchase(row.invoice);
   }
 
   partyTypeLabel(type: PartyType): string {
-    return type === 'supplier' ? 'Supplier / Company' : 'Customer';
+    return type === 'supplier' ? 'سپلائر / کمپنی' : 'کسٹمر';
+  }
+
+  partyWhatsAppUrl(): string {
+    const party = this.selectedParty();
+    if (!party) return 'https://wa.me/';
+    const message = [
+      `Assalam o Alaikum ${party.name},`,
+      `Aap ka khata detail${this.rangeLabel()}:`,
+      `Total business: Rs${this.total().toLocaleString()}`,
+      `Wasooli: Rs${this.cash().toLocaleString()}`,
+      `Baqaya: Rs${this.balance().toLocaleString()}`,
+      `Advance: Rs${this.advance().toLocaleString()}`,
+      `Malik Ashraf Traders`,
+    ].join('\n');
+    return this.whatsAppUrl(this.partyPhone(party), message);
   }
 
   private saleRow(sale: Sale): KhataRow {
@@ -141,6 +156,32 @@ export class PartyKhataComponent {
 
   private partyKey(type: PartyType, name: string): string {
     return `${type}:${name.trim().toLowerCase()}`;
+  }
+
+  private rangeLabel(): string {
+    if (this.fromDate() && this.toDate()) return ` (${this.fromDate()} se ${this.toDate()} tak)`;
+    if (this.fromDate()) return ` (${this.fromDate()} se ab tak)`;
+    if (this.toDate()) return ` (${this.toDate()} tak)`;
+    return '';
+  }
+
+  private partyPhone(party: PartyOption): string {
+    if (party.type !== 'customer') return '';
+    return this.store.customers().find(customer => customer.name === party.name)?.mobile ?? '';
+  }
+
+  private whatsAppUrl(phone: string, message: string): string {
+    const number = this.normalizedPhone(phone);
+    const text = encodeURIComponent(message);
+    return number ? `https://wa.me/${number}?text=${text}` : `https://wa.me/?text=${text}`;
+  }
+
+  private normalizedPhone(phone: string): string {
+    const digits = phone.replace(/\D/g, '');
+    if (!digits) return '';
+    if (digits.startsWith('92')) return digits;
+    if (digits.startsWith('0')) return `92${digits.slice(1)}`;
+    return digits;
   }
 
   private matchesRange(date: string): boolean {

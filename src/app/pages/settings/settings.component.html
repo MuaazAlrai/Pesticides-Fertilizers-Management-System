@@ -1,0 +1,21 @@
+<section class="page">
+  <div class="page-head">
+    <div>
+      <h1 class="page-title">ترتیبات</h1>
+      <p>Firebase Authentication کا یوزر نیم، ای میل اور نیا پاس ورڈ یہاں سے تبدیل ہو سکتا ہے۔</p>
+    </div>
+  </div>
+
+  <form class="panel settings-card" (ngSubmit)="save()">
+    <div class="panel-heading"><h2><lucide-icon [img]="icons.Settings" [size]="18" /> لاگ اِن تفصیل</h2></div>
+    <div class="form-grid">
+      <label>یوزر نیم <input name="username" [ngModel]="username()" (ngModelChange)="username.set($event)" placeholder="admin" /></label>
+      <label>ای میل <input name="email" type="email" [ngModel]="email()" (ngModelChange)="email.set($event)" placeholder="admin@example.com" /></label>
+      <label>نیا پاس ورڈ <input name="password" type="text" [ngModel]="password()" (ngModelChange)="password.set($event)" placeholder="خالی چھوڑیں تو پاس ورڈ تبدیل نہیں ہوگا" /></label>
+    </div>
+    @if(message()) { <p class="message">{{ message() }}</p> }
+    <div class="actions">
+      <button class="btn btn-primary" type="submit" [disabled]="loading()"><lucide-icon [img]="icons.Save" [size]="16" /> لاگ اِن محفوظ کریں</button>
+    </div>
+  </form>
+</section>

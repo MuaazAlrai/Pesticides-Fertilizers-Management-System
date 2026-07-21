@@ -74,7 +74,7 @@ export class SalesComponent {
         const sale = this.store.sales().find(row => row.invoice === invoice);
         if (sale) this.loadSaleForEdit(sale);
         else {
-          this.message.set('Invoice nahi mili.');
+          this.message.set('انوائس نہیں ملی۔');
           this.startNewSale();
         }
       } else {
@@ -123,7 +123,7 @@ export class SalesComponent {
     const customerName = this.saleForm().customer.trim();
     const saleLines = this.normalizedLines();
     if (!customerName || !saleLines.length) {
-      this.message.set('Customer aur kam az kam 1 product zaroori hai.');
+      this.message.set('کسٹمر اور کم از کم 1 آئٹم ضروری ہے۔');
       return;
     }
 
@@ -164,9 +164,9 @@ export class SalesComponent {
   }
 
   deleteSale(sale: Sale): void {
-    if (!confirm(`${sale.invoice} delete karni hai?`)) return;
+    if (!confirm(`${sale.invoice} delete کرنی ہے؟`)) return;
     this.store.deleteSale(sale.invoice);
-    this.message.set('Sale delete ho gayi.');
+    this.message.set('سیل delete ہو گئی۔');
   }
 
   addLine(): void {
@@ -253,17 +253,17 @@ export class SalesComponent {
   }
 
   locationLabel(location: StockLocation | undefined): string {
-    return location === 'warehouse' ? 'Godown' : 'Dukan';
+    return location === 'warehouse' ? 'گودام' : 'دکان';
   }
 
   paymentLabel(payment: PaymentStatus): string {
-    if (this.isPaid(payment)) return 'Cash';
-    if (payment === 'due' || payment === 'بقایا') return 'Credit';
-    return 'Partial';
+    if (this.isPaid(payment)) return 'وصولی';
+    if (payment === 'due' || payment === 'بقایا') return 'ادھار';
+    return 'جزوی';
   }
 
   payTypeLabel(payType: PayType): string {
-    return payType === 'cash' ? 'Cash' : payType === 'credit' ? 'Credit' : 'Partial';
+    return payType === 'cash' ? 'وصولی' : payType === 'credit' ? 'ادھار' : 'جزوی';
   }
 
   saleDate(sale: Sale): string {

@@ -54,7 +54,7 @@ export class PurchaseComponent {
         const purchase = this.store.purchases().find(row => row.invoice === invoice);
         if (purchase) this.loadPurchaseForEdit(purchase);
         else {
-          this.message.set('Bill nahi mila.');
+          this.message.set('بل نہیں ملا۔');
           this.startNewPurchase();
         }
       } else {
@@ -95,7 +95,7 @@ export class PurchaseComponent {
     const supplier = this.form().supplier.trim();
     const lines = this.normalizedLines();
     if (!supplier || !lines.length) {
-      this.message.set('Supplier aur kam az kam 1 product zaroori hai.');
+      this.message.set('سپلائر اور کم از کم 1 آئٹم ضروری ہے۔');
       return;
     }
     const payType = this.form().payType;
@@ -133,9 +133,9 @@ export class PurchaseComponent {
   }
 
   deletePurchase(purchase: Purchase): void {
-    if (!confirm(`${purchase.invoice} delete karni hai?`)) return;
+    if (!confirm(`${purchase.invoice} delete کرنی ہے؟`)) return;
     this.store.deletePurchase(purchase.invoice);
-    this.message.set('Purchase delete ho gayi.');
+    this.message.set('خریداری delete ہو گئی۔');
   }
 
   addLine(): void { this.lines.update(lines => [...lines, this.blankLine()]); }
@@ -147,9 +147,9 @@ export class PurchaseComponent {
   updateToDate(value: string): void { this.toDate.set(value); this.period.set('custom'); }
   lineTotal(line: PurchaseLineDraft): number { return Number(line.quantity || 0) * Number(line.rate || 0); }
   purchaseDate(purchase: Purchase): string { return purchase.date || this.todayIso(); }
-  locationLabel(location: StockLocation | undefined): string { return location === 'warehouse' ? 'Godown' : 'Dukan'; }
-  payTypeLabel(payType: PayType): string { return payType === 'cash' ? 'Cash' : payType === 'credit' ? 'Credit' : 'Partial'; }
-  paymentLabel(payment: PaymentStatus): string { return this.isPaid(payment) ? 'Cash' : payment === 'due' || payment === 'بقایا' ? 'Credit' : 'Partial'; }
+  locationLabel(location: StockLocation | undefined): string { return location === 'warehouse' ? 'گودام' : 'دکان'; }
+  payTypeLabel(payType: PayType): string { return payType === 'cash' ? 'وصولی' : payType === 'credit' ? 'ادھار' : 'جزوی'; }
+  paymentLabel(payment: PaymentStatus): string { return this.isPaid(payment) ? 'وصولی' : payment === 'due' || payment === 'بقایا' ? 'ادھار' : 'جزوی'; }
   stockLabel(line: PurchaseLineDraft): string {
     const item = this.store.stock().find(row => row.id === Number(line.itemId));
     return item ? `Dukan ${item.shop} / Godown ${item.warehouse} ${item.unit}` : '';

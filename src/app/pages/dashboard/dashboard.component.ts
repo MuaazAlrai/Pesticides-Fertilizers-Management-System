@@ -2,7 +2,6 @@ import { Component, computed } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
   AlertTriangle,
-  Banknote,
   Boxes,
   CircleDollarSign,
   CreditCard,
@@ -23,7 +22,6 @@ import { ErpStoreService } from '../../core/erp-store.service';
 export class DashboardComponent {
   readonly icons = {
     AlertTriangle,
-    Banknote,
     Boxes,
     CircleDollarSign,
     CreditCard,
@@ -40,14 +38,12 @@ export class DashboardComponent {
   readonly lowStock = computed(() => this.store.stock().filter(item => item.warehouse + item.shop <= item.minimum * 2));
 
   readonly cards = computed(() => [
-    { title: 'Aaj ki sales', value: `Rs${this.compact(this.salesTotal())}`, note: `${this.store.sales().length} invoices`, icon: TrendingUp, tone: 'green' },
-    { title: 'Aaj ki purchase', value: 'Rs86K', note: '8 invoices', icon: ShoppingCart, tone: 'orange' },
-    { title: 'Aaj ka profit', value: `Rs${this.compact(this.profitTotal())}`, note: 'Mojooda sales', icon: CircleDollarSign, tone: 'mint' },
-    { title: 'Monthly profit', value: 'Rs5.4L', note: 'July 2026', icon: TrendingUp, tone: 'green' },
-    { title: 'Cash available', value: 'Rs2.1L', note: 'Cash in hand', icon: CreditCard, tone: 'purple' },
-    { title: 'Bank balance', value: 'Rs8.7L', note: '4 accounts', icon: Banknote, tone: 'blue' },
-    { title: 'Receivables', value: `Rs${this.compact(this.receivables())}`, note: `${this.store.customers().filter(c => c.balance > 0).length} customers`, icon: AlertTriangle, tone: 'red' },
-    { title: 'Total stock', value: `${this.stockTotal()} items`, note: `${this.store.stock().length} khad/spray items`, icon: Boxes, tone: 'green' },
+    { title: 'آج کی سیلز', value: `Rs${this.compact(this.salesTotal())}`, note: `${this.store.sales().length} انوائس`, icon: TrendingUp, tone: 'green' },
+    { title: 'آج کی خریداری', value: 'Rs86K', note: '8 بل', icon: ShoppingCart, tone: 'orange' },
+    { title: 'آج کا منافع', value: `Rs${this.compact(this.profitTotal())}`, note: 'موجودہ سیلز', icon: CircleDollarSign, tone: 'mint' },
+    { title: 'ماہانہ منافع', value: 'Rs5.4L', note: 'جولائی 2026', icon: TrendingUp, tone: 'green' },
+    { title: 'وصولیاں', value: `Rs${this.compact(this.receivables())}`, note: `${this.store.customers().filter(c => c.balance > 0).length} کسٹمرز`, icon: AlertTriangle, tone: 'red' },
+    { title: 'کل اسٹاک', value: `${this.stockTotal()} آئٹمز`, note: `${this.store.stock().length} کھاد/سپرے آئٹمز`, icon: Boxes, tone: 'green' },
   ]);
 
   constructor(readonly store: ErpStoreService) {}
